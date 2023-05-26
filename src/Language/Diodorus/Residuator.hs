@@ -21,32 +21,36 @@ isKnown _ = False
 
 
 residuateExpr :: KEnv -> KEnv -> Expr -> Expr
-residuateExpr globals env app@(Apply e es) =
+residuateExpr globals env orig@(Apply e es) =
     let
         residuatedE = residuateExpr globals env e
         residuatedArgs = map (residuateExpr globals env) es
         eKnown = isKnown residuatedE
         argsKnown = all (isKnown) residuatedArgs
-    in
-        case (eKnown, argsKnown) of
-            (True, True) ->
-                let
-                    value = Eval.evalExpr (Env.map (\(Known v) -> v) globals) Env.empty app
-                in
-                    Lit value
-            _ ->
-                app
+    in case (eKnown, argsKnown) of
+        (True, True) ->
+            Lit $ Eval.evalExpr (Env.map (\(Known v) -> v) globals) Env.empty orig
+        _ ->
+            orig
 
-residuateExpr globals env e@(Name n) = case Env.fetch n env of
+residuateExpr globals env orig@(Name n) = case Env.fetch n env of
     Just (Known v) -> Lit v
     _ -> case Env.fetch n globals of
         Just (Known v) -> Lit v
-        _ -> e
+        _ -> orig
 
-residuateExpr globals env (Eval e) = error "not implemented: eval"
+residuateExpr globals env orig@(Eval e) =
+    let
+        residuatedE = residuateExpr globals env e
+        eKnown = isKnown residuatedE
+    in case eKnown of
+        True ->
+            Lit $ Eval.evalExpr (Env.map (\(Known v) -> v) globals) Env.empty orig
+        _ ->
+            orig
 
 -- When we residuate a literal function, we install in it the current environment.
-residuateExpr globals env e@(Lit (Fun formals body _)) =
+residuateExpr globals env (Lit (Fun formals body _)) =
     Lit (Fun formals body (Env.map (\(Known v) -> v) env))
 
 residuateExpr globals env other = other

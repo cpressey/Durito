@@ -107,3 +107,8 @@ pessimistic, but will serve us to start.
     def yark = fun(x, double) -> double(x)
     def main = fun(r) -> yark(53, fun(z) -> mul(z, 2))
     ===> yark(53, fun(z) -> mul(z, 2))
+
+Residuate over `eval`.
+
+    def main = fun() -> eval <<add(123, 456)>>
+    ===> 579
