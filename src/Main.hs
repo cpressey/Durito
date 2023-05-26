@@ -18,7 +18,7 @@ main = do
             putStrLn $ show program
         ["eval", fileName] -> do
             program <- loadSource fileName
-            let env = Env.makeEnv program
+            let env = Eval.makeInitialEnv program
             case Env.fetch "main" env of
                 Nothing ->
                     abortWith "No main function defined"

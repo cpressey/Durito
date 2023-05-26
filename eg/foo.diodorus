@@ -1,4 +1,3 @@
 def double = fun(n) -> mul(2, n)
 def perim = fun(w, h) -> double(add(w, h))
 def main = fun() -> perim(12,34)
-def mnain = 123

@@ -14,7 +14,3 @@ empty = Env{ table=Map.empty }
 fetch k env = Map.lookup k (table env)
 insert k v env = env{ table=Map.insert k v (table env) }
 update f k env = env{ table=Map.update f k (table env) }
-
-makeEnv [] = empty
-makeEnv ((name, (Lit value)): rest) = insert name value $ makeEnv rest
-makeEnv ((name, other): _) = error "non-literal toplevel"
