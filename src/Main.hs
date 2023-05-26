@@ -9,6 +9,7 @@ import qualified Language.Diodorus.Env as Env
 import qualified Language.Diodorus.Parser as Parser
 import qualified Language.Diodorus.Eval as Eval
 import qualified Language.Diodorus.Residuator as Residuator
+import qualified Language.Diodorus.Pretty as Pretty
 
 
 main = do
@@ -36,7 +37,7 @@ main = do
                     abortWith "No main function defined"
                 Just (Residuator.Known (Fun formals main _)) -> do
                     let result = Residuator.residuateExpr globals (Env.empty) main
-                    putStrLn $ show result
+                    putStrLn $ Pretty.renderExpr result
         _ -> do
             abortWith "Usage: diodorus (parse|eval|residuate-main) <input-filename>"
 

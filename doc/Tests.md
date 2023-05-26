@@ -56,20 +56,20 @@ Residuation
 Literals.
 
     def main = fun() -> 123
-    ===> Lit (Int 123)
+    ===> 123
 
 Known names.
 
     def num = 123
     def main = fun() -> num
-    ===> Lit (Int 123)
+    ===> 123
 
 Builtins.
 
     def main = fun() -> add(123, 7)
-    ===> Lit (Int 130)
+    ===> 130
 
 Can't residuate an application if any of the actuals are not known.
 
     def main = fun(r) -> add(123, r)
-    ===> Apply (Name "add") [Lit (Int 123),Name "r"]
+    ===> add(123, r)
