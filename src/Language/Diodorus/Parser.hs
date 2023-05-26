@@ -9,7 +9,8 @@ import Language.Diodorus.Model
 
 program = do
     fspaces
-    many defn
+    ds <- many defn
+    return $ Program ds
 
 defn = do
     keyword "def"

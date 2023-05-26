@@ -30,8 +30,8 @@ evalExpr globals env (Lit v) = v
 
 --
 
-makeInitialEnv [] = builtins
-makeInitialEnv ((name, (Lit value)): rest) = insert name value $ makeInitialEnv rest
-makeInitialEnv ((name, other): _) = error "non-literal toplevel"
-
-builtins = extend empty ["mul", "add"] [Builtin Mul, Builtin Add]
+makeInitialEnv (Program defns) = m defns where
+    m [] = builtins
+    m ((name, (Lit value)): rest) = insert name value $ m rest
+    m ((name, other): _) = error "non-literal toplevel"
+    builtins = extend empty ["mul", "add"] [Builtin Mul, Builtin Add]
