@@ -1,10 +1,10 @@
 module Language.Diodorus.Model where
 
-import Language.Diodorus.Env
+import qualified Language.Diodorus.Env as Env
 
 type Name = String
 
-type DEnv = Env Name Value
+type DEnv = Env.Env Name Value
 
 
 data Program = Program [(Name, Expr)]
