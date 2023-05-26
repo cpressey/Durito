@@ -32,7 +32,7 @@ main = do
             case Env.fetch "main" globals of
                 Nothing ->
                     abortWith "No main function defined"
-                Just (Just (Fun [] main _)) -> do
+                Just (Residuator.Known (Fun [] main _)) -> do
                     let result = Residuator.residuateExpr globals (Env.empty) main
                     putStrLn $ show result
         _ -> do
