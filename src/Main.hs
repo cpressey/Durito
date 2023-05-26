@@ -23,20 +23,22 @@ main = do
             case Env.fetch "main" globals of
                 Nothing ->
                     abortWith "No main function defined"
-                Just (Fun [] main _) -> do
+                Just (Fun formals main _) -> do
+                    -- TODO: read arguments from command line
+                    -- TODO: create env from those arguments
                     let result = Eval.evalExpr globals (Env.empty) main
                     putStrLn $ show result
-        ["residuate", fileName] -> do
+        ["residuate-main", fileName] -> do
             program <- loadSource fileName
             let globals = Residuator.makeInitialEnv program
             case Env.fetch "main" globals of
                 Nothing ->
                     abortWith "No main function defined"
-                Just (Residuator.Known (Fun [] main _)) -> do
+                Just (Residuator.Known (Fun formals main _)) -> do
                     let result = Residuator.residuateExpr globals (Env.empty) main
                     putStrLn $ show result
         _ -> do
-            abortWith "Usage: diodorus (parse|eval|residuate) <input-filename>"
+            abortWith "Usage: diodorus (parse|eval|residuate-main) <input-filename>"
 
 loadSource fileName = do
     handle <- openFile fileName ReadMode

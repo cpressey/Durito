@@ -48,10 +48,10 @@ This makes it more obvious when symbols in quoted forms are bound
 Residuation
 -----------
 
-    -> Functionality "Residuate Diodorus Program" is implemented by
-    -> shell command "bin/diodorus residuate %(test-body-file)"
+    -> Functionality "Residuate Diodorus Program `main` Function" is implemented by
+    -> shell command "bin/diodorus residuate-main %(test-body-file)"
 
-    -> Tests for functionality "Residuate Diodorus Program"
+    -> Tests for functionality "Residuate Diodorus Program `main` Function"
 
 Literals.
 
@@ -68,3 +68,8 @@ Builtins.
 
     def main = fun() -> add(123, 7)
     ===> Lit (Int 130)
+
+Can't residuate an application if any of the actuals are not known.
+
+    def main = fun(r) -> add(123, r)
+    ===> Apply (Name "add") [Lit (Int 123),Name "r"]
