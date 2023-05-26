@@ -6,7 +6,9 @@ import Text.ParserCombinators.Parsec
 import Language.Diodorus.Model
 
 
-program = many defn
+program = do
+    fspaces
+    many defn
 
 defn = do
     keyword "def"
@@ -40,14 +42,13 @@ litInt = do
     fspaces
     return $ Lit $ Int num
 
-expr = (try exprApply) <|> (try exprName) <|> exprEval <|> literal
+expr = (try literal) <|> (try exprApply) <|> (try exprEval) <|> exprName
 
 exprApply = do
-    n <- name  -- Note, should really be an expression; but pretend there is a let
+    e <- (try subExpr) <|> exprName
     keyword "("
     a <- sepBy (expr) (keyword ",")
     keyword ")"
-    let e = Name n
     return $ Apply e a
 
 exprName = do
@@ -58,6 +59,12 @@ exprEval = do
     keyword "eval"
     e <- expr
     return $ Eval e
+
+subExpr = do
+    keyword "("
+    e <- expr
+    keyword ")"
+    return e
 
 --
 

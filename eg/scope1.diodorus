@@ -1,0 +1,4 @@
+
+def main = fun() -> aaaa(1, 2)
+def aaaa = fun(p, q) -> bbbb(99)
+def bbbb = fun(r) -> add(p, q)
