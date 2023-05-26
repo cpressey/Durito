@@ -1,6 +1,11 @@
 module Language.Diodorus.Model where
 
+import Language.Diodorus.Env
+
 type Name = String
+
+type DEnv = Env Name Value
+
 
 data Program = Program [(Name, Expr)]
     deriving (Show, Ord, Eq)
