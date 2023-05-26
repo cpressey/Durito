@@ -18,12 +18,12 @@ main = do
             putStrLn $ show program
         ["eval", fileName] -> do
             program <- loadSource fileName
-            let env = Eval.makeInitialEnv program
-            case Env.fetch "main" env of
+            let globals = Eval.makeInitialEnv program
+            case Env.fetch "main" globals of
                 Nothing ->
                     abortWith "No main function defined"
                 Just (Fun [] main _) -> do
-                    let result = Eval.evalExpr env main
+                    let result = Eval.evalExpr globals (Env.empty) main
                     putStrLn $ show result
         _ -> do
             abortWith "Usage: diodorus (parse) <input-filename>"

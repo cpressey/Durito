@@ -16,7 +16,7 @@ data Expr = Apply Expr [Expr]
           | Lit Value
     deriving (Show, Ord, Eq)
 
-data Value = Fun [Name] Expr (Maybe DEnv)
+data Value = Fun [Name] Expr DEnv
            | Quote Expr
            | Int Integer
            | Builtin Builtin

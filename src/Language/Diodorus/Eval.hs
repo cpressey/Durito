@@ -4,36 +4,32 @@ import Language.Diodorus.Model
 import Language.Diodorus.Env
 
 
-evalExpr :: DEnv -> Expr -> Value
-evalExpr env (Apply e es) =
+evalExpr :: DEnv -> DEnv -> Expr -> Value
+evalExpr globals env (Apply e es) =
     let
-        actuals = map (evalExpr env) es
+        actuals = map (evalExpr globals env) es
     in
-        case evalExpr env e of
-            Fun formals body Nothing ->
-                evalFun env formals actuals body
-            Fun formals body (Just capturedEnv) ->
-                evalFun capturedEnv formals actuals body
+        case evalExpr globals env e of
+            Fun formals body lexicalEnv ->
+                evalExpr globals (extend lexicalEnv formals actuals) body
             Builtin Add ->
                 (\[(Int x), (Int y)] -> Int (x + y)) actuals
             Builtin Mul ->
                 (\[(Int x), (Int y)] -> Int (x * y)) actuals
 
-evalExpr env (Name n) = case fetch n env of
+evalExpr globals env (Name n) = case fetch n env of
     Just v -> v
-    Nothing -> error $ "undefined name " ++ n
-evalExpr env (Eval e) = evalExpr env e
-evalExpr env (Lit (Fun formals body Nothing)) = Fun formals body $ Just env
-evalExpr env (Lit v) = v
+    Nothing -> case fetch n globals of
+        Just gv -> gv
+        Nothing -> error $ "undefined name " ++ n
+evalExpr globals env (Eval e) = evalExpr globals env e
+evalExpr globals env (Lit (Fun formals body _)) = Fun formals body env
+evalExpr globals env (Lit v) = v
 
-
-evalFun :: DEnv -> [Name] -> [Value] -> Expr -> Value
-evalFun env formals actuals body =
-    -- FIXME: this is dynamic scoping -- make it lexical
-    evalExpr (extend env formals actuals) body
+--
 
 makeInitialEnv [] = builtins
 makeInitialEnv ((name, (Lit value)): rest) = insert name value $ makeInitialEnv rest
-makmakeInitialEnveEnv ((name, other): _) = error "non-literal toplevel"
+makeInitialEnv ((name, other): _) = error "non-literal toplevel"
 
 builtins = extend empty ["mul", "add"] [Builtin Mul, Builtin Add]

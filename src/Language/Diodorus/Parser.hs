@@ -3,6 +3,7 @@ module Language.Diodorus.Parser where
 
 import Text.ParserCombinators.Parsec
 
+import Language.Diodorus.Env
 import Language.Diodorus.Model
 
 
@@ -26,7 +27,7 @@ litFun = do
     keyword ")"
     keyword "->"
     e <- expr
-    return $ Lit $ Fun f e Nothing
+    return $ Lit $ Fun f e empty
 
 litQuote = do
     keyword "<<"
