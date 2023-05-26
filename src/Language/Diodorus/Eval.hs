@@ -22,10 +22,14 @@ evalExpr globals env (Name n) = case Env.fetch n env of
     Nothing -> case Env.fetch n globals of
         Just v -> v
         Nothing -> error $ "undefined name " ++ n
+
 evalExpr globals env (Eval e) = case evalExpr globals env e of
     Quote qe -> evalExpr globals env qe
     _        -> error "type mismatch"
+
+-- When we evaluate a literal function, we install in it the current environment.
 evalExpr globals env (Lit (Fun formals body _)) = Fun formals body env
+
 evalExpr globals env (Lit v) = v
 
 --

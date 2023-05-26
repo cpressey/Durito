@@ -13,6 +13,7 @@ fetch k env = Map.lookup k (table env)
 insert k v env = env{ table=Map.insert k v (table env) }
 update f k env = env{ table=Map.update f k (table env) }
 
+isEmpty env = Map.null (table env)
 
 extend :: Ord tk => Env tk tv -> [tk] -> [tv] -> Env tk tv
 extend env [] [] = env
