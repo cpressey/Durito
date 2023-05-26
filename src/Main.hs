@@ -18,17 +18,11 @@ main = do
         ["parse", fileName] -> do
             program <- loadSource fileName
             putStrLn $ show program
-        ["eval", fileName] -> do
+        ("eval":(fileName: progArgs)) -> do
             program <- loadSource fileName
-            let globals = Eval.makeInitialEnv program
-            case Env.fetch "main" globals of
-                Nothing ->
-                    abortWith "No main function defined"
-                Just (Fun formals main _) -> do
-                    -- TODO: read arguments from command line
-                    -- TODO: create env from those arguments
-                    let result = Eval.evalExpr globals (Env.empty) main
-                    putStrLn $ Pretty.renderValue result
+            let actuals = map (Parser.parseLiteral) progArgs
+            let result = Eval.evalProgram program actuals
+            putStrLn $ Pretty.renderValue result
         ["residuate-main", fileName] -> do
             program <- loadSource fileName
             let globals = Residuator.makeInitialEnv program

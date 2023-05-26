@@ -1,0 +1,1 @@
+def main = fun(x) -> mul(x, 2)

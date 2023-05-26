@@ -87,3 +87,7 @@ name = do
 --
 
 parseDiodorus text = parse program "" text
+
+parseLiteral text = case parse literal "" text of
+    Right (Lit v) -> v
+    other -> error ("cannot parse literal: " ++ show other)

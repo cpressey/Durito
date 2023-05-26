@@ -34,6 +34,17 @@ evalExpr globals env (Lit v) = v
 
 --
 
+evalProgram program actuals =
+    let
+        globals = makeInitialEnv program
+    in case Env.fetch "main" globals of
+        Nothing ->
+            error "No main function defined"
+        Just (Fun formals main _) ->
+            evalExpr globals (Env.extend Env.empty formals actuals) main
+
+--
+
 makeInitialEnv (Program defns) = m defns where
     m [] = builtins
     m ((name, (Lit value)): rest) = Env.insert name value $ m rest
