@@ -35,8 +35,8 @@ main = do
             case Env.fetch "main" globals of
                 Nothing ->
                     abortWith "No main function defined"
-                Just (Residuator.Known (Fun formals main _)) -> do
-                    let result = Residuator.residuateExpr globals (Env.empty) main
+                Just (Residuator.Known fun@(Fun formals main _)) -> do
+                    let result = Residuator.residuateFunDefn globals (Env.empty) fun
                     putStrLn $ Pretty.renderExpr result
         _ -> do
             abortWith "Usage: diodorus (parse|eval|residuate-main) <input-filename>"

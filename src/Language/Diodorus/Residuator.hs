@@ -1,6 +1,6 @@
 module Language.Diodorus.Residuator where
 
-import Debug.Trace
+--import Debug.Trace
 
 import Language.Diodorus.Model
 import qualified Language.Diodorus.Env as Env
@@ -47,13 +47,22 @@ residuateExpr globals env (Eval e) = error "not implemented: eval"
 
 -- When we residuate a literal function, we install in it the current environment.
 residuateExpr globals env e@(Lit (Fun formals body _)) =
-    -- TODO when we descend into function literals,
-    -- we need to extend the env with the formals
-    -- which is something we do in the evaluator,
-    -- but which we haven't done in the residuator yet
-    trace (show (e, env)) (Lit (Fun formals body (Env.map (\(Known v) -> v) env)))
+    Lit (Fun formals body (Env.map (\(Known v) -> v) env))
 
 residuateExpr globals env other = other
+
+-- When descending into function literals, we
+-- extend the known-env with the formals as unknowns
+
+residuateFunDefn :: KEnv -> KEnv -> Value -> Expr
+residuateFunDefn globals env (Fun formals body lexicalEnv) =
+    let
+        actuals = map (\_ -> Unknown) formals
+        lexicalKnownEnv = Env.map (\v -> Known v) lexicalEnv
+        env' = Env.extend lexicalKnownEnv formals actuals
+        result = residuateExpr globals env' body
+    in
+        result
 
 -- All globals are known.
 
