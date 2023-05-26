@@ -26,7 +26,7 @@ litFun = do
     keyword ")"
     keyword "->"
     e <- expr
-    return $ Lit $ Fun f e
+    return $ Lit $ Fun f e Nothing
 
 litQuote = do
     keyword "<<"

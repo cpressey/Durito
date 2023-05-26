@@ -10,8 +10,10 @@ evalExpr env (Apply e es) =
         actuals = map (evalExpr env) es
     in
         case evalExpr env e of
-            Fun formals body ->
+            Fun formals body Nothing ->
                 evalFun env formals actuals body
+            Fun formals body (Just capturedEnv) ->
+                evalFun capturedEnv formals actuals body
             Builtin Add ->
                 (\[(Int x), (Int y)] -> Int (x + y)) actuals
             Builtin Mul ->
@@ -21,6 +23,7 @@ evalExpr env (Name n) = case fetch n env of
     Just v -> v
     Nothing -> error $ "undefined name " ++ n
 evalExpr env (Eval e) = evalExpr env e
+evalExpr env (Lit (Fun formals body Nothing)) = Fun formals body $ Just env
 evalExpr env (Lit v) = v
 
 
