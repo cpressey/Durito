@@ -14,7 +14,7 @@ Applying functions
     def double = fun(n) -> mul(2, n)
     def perim = fun(w, h) -> double(add(w, h))
     def main = fun() -> perim(12,34)
-    ===> Int 92
+    ===> 92
 
 The language does not use dynamic scope
 
@@ -28,14 +28,14 @@ The language does use lexical scope
     def main = fun() -> aaaa(1)
     def make = fun(p) -> fun(q) -> add(p, q)
     def aaaa = fun(x) -> (make(x))(99)
-    ===> Int 100
+    ===> 100
 
 The language implements eval (for now)
 
     def double = fun(n) -> mul(2, n)
     def perim = fun(w, h) -> eval <<double(add(w, h))>>
     def main = fun() -> perim(12,34)
-    ===> Int 92
+    ===> 92
 
 This makes it more obvious when symbols in quoted forms are bound
 
@@ -43,7 +43,12 @@ This makes it more obvious when symbols in quoted forms are bound
     def quoted = fun() -> <<double(add(w, h))>>
     def perim = fun(w, h) -> eval quoted()
     def main = fun() -> perim(12,34)
-    ===> Int 92
+    ===> 92
+
+A program may evaluate to a function value.
+
+    def main = fun() -> fun(r) -> add(1, r)
+    ===> fun(r) -> add(1, r)
 
 Residuation
 -----------
@@ -57,6 +62,12 @@ Literals.
 
     def main = fun() -> 123
     ===> 123
+
+    def main = fun() -> <<add(123, r)>>
+    ===> <<add(123, r)>>
+
+    def main = fun() -> fun(r) -> add(1, r)
+    ===> fun(r) -> add(1, r)
 
 Known names.
 

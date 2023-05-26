@@ -38,8 +38,8 @@ residuateExpr globals env e@(Name n) = case Env.fetch n env of
     _ -> case Env.fetch n globals of
         Just (Known v) -> Lit v
         _ -> e
-residuateExpr globals env (Eval e) = error "not implemented"
-residuateExpr globals env (Lit (Fun formals body _)) = error "not implemented"
+residuateExpr globals env (Eval e) = error "not implemented: eval"
+residuateExpr globals env e@(Lit (Fun formals body _)) = e
 residuateExpr globals env other = other
 
 -- All globals are known.

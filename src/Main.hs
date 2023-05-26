@@ -28,7 +28,7 @@ main = do
                     -- TODO: read arguments from command line
                     -- TODO: create env from those arguments
                     let result = Eval.evalExpr globals (Env.empty) main
-                    putStrLn $ show result
+                    putStrLn $ Pretty.renderValue result
         ["residuate-main", fileName] -> do
             program <- loadSource fileName
             let globals = Residuator.makeInitialEnv program
