@@ -18,3 +18,6 @@ extend :: Ord tk => Env tk tv -> [tk] -> [tv] -> Env tk tv
 extend env [] [] = env
 extend env (formal:formals) (actual:actuals) =
     extend (insert formal actual env) formals actuals
+
+map :: Ord tk => (tv1 -> tv2) -> Env tk tv1 -> Env tk tv2
+map f env = env{ table=Map.map f (table env) }

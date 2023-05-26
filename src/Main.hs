@@ -6,8 +6,9 @@ import System.IO
 
 import Language.Diodorus.Model
 import qualified Language.Diodorus.Env as Env
-import qualified Language.Diodorus.Eval as Eval
 import qualified Language.Diodorus.Parser as Parser
+import qualified Language.Diodorus.Eval as Eval
+import qualified Language.Diodorus.Residuator as Residuator
 
 
 main = do
@@ -25,8 +26,17 @@ main = do
                 Just (Fun [] main _) -> do
                     let result = Eval.evalExpr globals (Env.empty) main
                     putStrLn $ show result
+        ["residuate", fileName] -> do
+            program <- loadSource fileName
+            let globals = Residuator.makeInitialEnv program
+            case Env.fetch "main" globals of
+                Nothing ->
+                    abortWith "No main function defined"
+                Just (Just (Fun [] main _)) -> do
+                    let result = Residuator.residuateExpr globals (Env.empty) main
+                    putStrLn $ show result
         _ -> do
-            abortWith "Usage: diodorus (parse) <input-filename>"
+            abortWith "Usage: diodorus (parse|eval|residuate) <input-filename>"
 
 loadSource fileName = do
     handle <- openFile fileName ReadMode
