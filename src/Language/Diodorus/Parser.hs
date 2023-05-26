@@ -24,21 +24,21 @@ litFun = do
     keyword ")"
     keyword "->"
     e <- expr
-    return $ LitFun f e
+    return $ Lit $ Fun f e
 
 litQuote = do
     keyword "<<"
     e <- expr
     keyword ">>"
     fspaces
-    return $ LitQuote e
+    return $ Lit $ Quote e
 
 litInt = do
     c <- digit
     cs <- many digit
     num <- return (read (c:cs) :: Integer)
     fspaces
-    return $ LitInt num
+    return $ Lit $ Int num
 
 expr = (try exprApply) <|> (try exprName) <|> exprEval <|> literal
 

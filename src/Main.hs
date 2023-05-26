@@ -4,6 +4,7 @@ import System.Environment
 import System.Exit
 import System.IO
 
+import Language.Diodorus.Model
 import qualified Language.Diodorus.Env as Env
 import qualified Language.Diodorus.Eval as Eval
 import qualified Language.Diodorus.Parser as Parser
@@ -22,7 +23,7 @@ main = do
                 Nothing ->
                     abortWith "No main function defined"
                 Just main -> do
-                    let result = Eval.evalExpr env main
+                    let result = Eval.evalExpr env (Lit main)
                     putStrLn $ show result
         _ -> do
             abortWith "Usage: diodorus (parse) <input-filename>"

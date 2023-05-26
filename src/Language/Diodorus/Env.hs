@@ -6,7 +6,7 @@ import Language.Diodorus.Model
 
 
 data Env = Env {
-    table :: Map.Map String Expr
+    table :: Map.Map String Value
   } deriving (Show, Ord, Eq)
 
 
@@ -16,4 +16,5 @@ insert k v env = env{ table=Map.insert k v (table env) }
 update f k env = env{ table=Map.update f k (table env) }
 
 makeEnv [] = empty
-makeEnv ((name, def): rest) = insert name def $ makeEnv rest
+makeEnv ((name, (Lit value)): rest) = insert name value $ makeEnv rest
+makeEnv ((name, other): _) = error "non-literal toplevel"
