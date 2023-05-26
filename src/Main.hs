@@ -22,8 +22,8 @@ main = do
             case Env.fetch "main" env of
                 Nothing ->
                     abortWith "No main function defined"
-                Just main -> do
-                    let result = Eval.evalExpr env (Lit main)
+                Just (Fun [] main) -> do
+                    let result = Eval.evalExpr env main
                     putStrLn $ show result
         _ -> do
             abortWith "Usage: diodorus (parse) <input-filename>"
