@@ -12,12 +12,31 @@ data KnownStatus = Known Value
 type KEnv = Env.Env Name KnownStatus
 
 
+isKnown :: Expr -> Bool
+isKnown (Lit (Fun formals body _)) = False  -- TODO: muy pessimistic!
+isKnown (Lit _) = True
+isKnown _ = False
+
+
 residuateExpr :: KEnv -> KEnv -> Expr -> Expr
-residuateExpr globals env (Apply e es) = error "not implemented"
+residuateExpr globals env app@(Apply e es) =
+    let
+        residuatedE = residuateExpr globals env e
+        residuatedArgs = map (residuateExpr globals env) es
+    in
+        case (isKnown residuatedE, all (isKnown) residuatedArgs) of
+            (True, True) ->
+                let
+                    value = Eval.evalExpr (Env.map (\(Known v) -> v) globals) Env.empty app
+                in
+                    Lit value
+            _ ->
+                app
+
 residuateExpr globals env e@(Name n) = case Env.fetch n env of
     Just (Known v) -> Lit v
     _ -> case Env.fetch n globals of
-        Just (Known gv) -> Lit gv
+        Just (Known v) -> Lit v
         _ -> e
 residuateExpr globals env (Eval e) = error "not implemented"
 residuateExpr globals env (Lit (Fun formals body _)) = error "not implemented"

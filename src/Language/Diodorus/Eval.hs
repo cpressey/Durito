@@ -20,7 +20,7 @@ evalExpr globals env (Apply e es) =
 evalExpr globals env (Name n) = case Env.fetch n env of
     Just v -> v
     Nothing -> case Env.fetch n globals of
-        Just gv -> gv
+        Just v -> v
         Nothing -> error $ "undefined name " ++ n
 evalExpr globals env (Eval e) = case evalExpr globals env e of
     Quote qe -> evalExpr globals env qe

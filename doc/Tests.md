@@ -53,9 +53,18 @@ Residuation
 
     -> Tests for functionality "Residuate Diodorus Program"
 
+Literals.
+
     def main = fun() -> 123
     ===> Lit (Int 123)
+
+Known names.
 
     def num = 123
     def main = fun() -> num
     ===> Lit (Int 123)
+
+Builtins.
+
+    def main = fun() -> add(123, 7)
+    ===> Lit (Int 130)
