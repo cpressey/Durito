@@ -22,7 +22,9 @@ evalExpr globals env (Name n) = case fetch n env of
     Nothing -> case fetch n globals of
         Just gv -> gv
         Nothing -> error $ "undefined name " ++ n
-evalExpr globals env (Eval e) = evalExpr globals env e
+evalExpr globals env (Eval e) = case evalExpr globals env e of
+    Quote qe -> evalExpr globals env qe
+    _        -> error "type mismatch"
 evalExpr globals env (Lit (Fun formals body _)) = Fun formals body env
 evalExpr globals env (Lit v) = v
 
