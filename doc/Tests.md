@@ -1,6 +1,9 @@
 Diodorus Tests
 ==============
 
+Eval
+----
+
     -> Functionality "Evaluate Diodorus Program" is implemented by
     -> shell command "bin/diodorus eval %(test-body-file)"
 
@@ -41,3 +44,18 @@ This makes it more obvious when symbols in quoted forms are bound
     def perim = fun(w, h) -> eval quoted()
     def main = fun() -> perim(12,34)
     ===> Int 92
+
+Residuation
+-----------
+
+    -> Functionality "Residuate Diodorus Program" is implemented by
+    -> shell command "bin/diodorus residuate %(test-body-file)"
+
+    -> Tests for functionality "Residuate Diodorus Program"
+
+    def main = fun() -> 123
+    ===> Lit (Int 123)
+
+    def num = 123
+    def main = fun() -> num
+    ===> Lit (Int 123)
