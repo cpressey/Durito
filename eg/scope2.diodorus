@@ -1,3 +1,0 @@
-
-def main = fun() -> aaaa(1)
-def aaaa = fun(p) -> (fun(q) -> add(p, q))(99)

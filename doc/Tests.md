@@ -13,15 +13,16 @@ Applying functions
     def main = fun() -> perim(12,34)
     ===> Int 92
 
-Dynamic scope (FIXME: should fail)
+The language does not use dynamic scope
 
     def main = fun() -> aaaa(1, 2)
     def aaaa = fun(p, q) -> bbbb(99)
     def bbbb = fun(r) -> add(p, q)
-    ===> Int 3
+    ???> undefined name p
 
-Lexical scope
+The language does use lexical scope
 
     def main = fun() -> aaaa(1)
-    def aaaa = fun(p) -> (fun(q) -> add(p, q))(99)
+    def make = fun(p) -> fun(q) -> add(p, q)
+    def aaaa = fun(x) -> (make(x))(99)
     ===> Int 100
