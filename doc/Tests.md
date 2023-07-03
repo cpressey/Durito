@@ -30,6 +30,19 @@ The language does use lexical scope.
     def aaaa = fun(x) -> (make(x))(99)
     ===> 100
 
+A program may evaluate to a function value.
+
+    def main = fun() -> fun(r) -> add(1, r)
+    ===> fun(r) -> add(1, r)
+
+Functions can be passed to functions.
+
+    def yark = fun(x, double) -> double(x)
+    def main = fun() -> yark(53, fun(z) -> mul(z, 2))
+    ===> 106
+
+### Evaluation of `eval`
+
 The language implements `eval` at runtime (at least, for now).
 
     def double = fun(n) -> mul(2, n)
@@ -54,16 +67,32 @@ or formal arguments, will not be bound.
     def main = fun() -> perim(12,34)
     ???> undefined name
 
-A program may evaluate to a function value.
+There is, at present, no way to provide an `eval` with an environment
+other than described above.  To introduce specific bindings, the idiom
+in Durito is to perform syntactic replacement on the quoted form
+before calling `eval` on it.  To this end, Durito could (and arguably
+should) provide a sophisticated set of tools for constructing and
+manipulating quoted forms.  Alas, at present, it does not.  It provides
+only a `subst` form, which substitutes names in a quoted form with
+values.  However, this suffices for a lot of cases.
 
-    def main = fun() -> fun(r) -> add(1, r)
-    ===> fun(r) -> add(1, r)
+    def yarf = fun() -> subst a -> 123 in <<add(a, 99)>>
+    def main = fun() -> eval yarf()
+    ===> 222
 
-Functions can be passed to functions.
+Using this, we may introduce local variables explicitly during `eval`.
+Compare this to the "undefined name" example above.
 
-    def yark = fun(x, double) -> double(x)
-    def main = fun() -> yark(53, fun(z) -> mul(z, 2))
-    ===> 106
+    def double = fun(n) -> mul(2, n)
+    def quoted = fun() -> <<double(add(w, h))>>
+    def perim = fun(w, h) ->
+        eval subst
+            w -> w,
+            h -> h
+        in
+            quoted()
+    def main = fun() -> perim(12,34)
+    ===> 92
 
 Residuation
 -----------

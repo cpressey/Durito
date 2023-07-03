@@ -27,6 +27,13 @@ evalExpr globals env (Eval e) = case evalExpr globals env e of
     Quote qe -> evalExpr globals Env.empty qe
     _        -> error "type mismatch"
 
+evalExpr globals env (Subst bindings e) =
+    let
+        evaledBindings = mapBindings (evalExpr globals env) bindings
+    in case evalExpr globals env e of
+        Quote expr -> Quote (substBindings evaledBindings expr)
+        _          -> error "type mismatch"
+
 -- When we evaluate a literal function, we install in it the current environment.
 evalExpr globals env (Lit (Fun formals body _)) = Fun formals body env
 

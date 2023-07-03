@@ -44,7 +44,25 @@ litInt = do
     fspaces
     return $ Lit $ Int num
 
-expr = (try literal) <|> (try exprApply) <|> (try exprEval) <|> exprName
+expr = (try literal) <|> (try exprEval) <|> (try exprSubst) <|> (try exprApply) <|> exprName
+
+exprEval = do
+    keyword "eval"
+    e <- expr
+    return $ Eval e
+
+exprSubst = do
+    keyword "subst"
+    bindings <- sepBy (replacementSpec) (keyword ",")
+    keyword "in"
+    e <- expr
+    return $ Subst bindings e
+
+replacementSpec = do
+    n <- name
+    keyword "->"
+    e <- expr
+    return $ (n, e)
 
 exprApply = do
     e <- (try subExpr) <|> exprName
@@ -53,20 +71,15 @@ exprApply = do
     keyword ")"
     return $ Apply e a
 
-exprName = do
-    n <- name
-    return $ Name n
-
-exprEval = do
-    keyword "eval"
-    e <- expr
-    return $ Eval e
-
 subExpr = do
     keyword "("
     e <- expr
     keyword ")"
     return e
+
+exprName = do
+    n <- name
+    return $ Name n
 
 --
 
