@@ -33,19 +33,26 @@ The language does use lexical scope.
 The language implements `eval` at runtime (at least, for now).
 
     def double = fun(n) -> mul(2, n)
-    def perim = fun(w, h) -> eval <<double(add(w, h))>>
-    def main = fun() -> perim(12,34)
+    def main = fun() -> eval <<double(add(12, 34))>>
     ===> 92
 
-This example tries to elucidate the point in time at which
-symbols in quoted forms are bound.  (TODO: we should also
-demonstrate the mechanism we plan to use to avert this.)
+The argument to `eval` must be a quoted form.
+
+    def double = fun(n) -> mul(2, n)
+    def scram = fun(x) -> double(eval x)
+    def main = fun() -> scram(99)
+    ???> type
+
+The environment in which the `eval` takes place consists
+only of the names of builtins and of global (top-level)
+identifiers.  Any other names, such as local variables
+or formal arguments, will not be bound.
 
     def double = fun(n) -> mul(2, n)
     def quoted = fun() -> <<double(add(w, h))>>
     def perim = fun(w, h) -> eval quoted()
     def main = fun() -> perim(12,34)
-    ===> 92
+    ???> undefined name
 
 A program may evaluate to a function value.
 
