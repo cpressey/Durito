@@ -1,43 +1,45 @@
 Durito Tests
 ============
 
-Eval
-----
+Evaluation of Durito programs
+-----------------------------
 
     -> Functionality "Evaluate Durito Program" is implemented by
     -> shell command "bin/durito eval %(test-body-file)"
 
     -> Tests for functionality "Evaluate Durito Program"
 
-Applying functions
+Applying functions.
 
     def double = fun(n) -> mul(2, n)
     def perim = fun(w, h) -> double(add(w, h))
     def main = fun() -> perim(12,34)
     ===> 92
 
-The language does not use dynamic scope
+The language does not use dynamic scope.
 
     def main = fun() -> aaaa(1, 2)
     def aaaa = fun(p, q) -> bbbb(99)
     def bbbb = fun(r) -> add(p, q)
     ???> undefined name p
 
-The language does use lexical scope
+The language does use lexical scope.
 
     def main = fun() -> aaaa(1)
     def make = fun(p) -> fun(q) -> add(p, q)
     def aaaa = fun(x) -> (make(x))(99)
     ===> 100
 
-The language implements eval (for now)
+The language implements `eval` at runtime (at least, for now).
 
     def double = fun(n) -> mul(2, n)
     def perim = fun(w, h) -> eval <<double(add(w, h))>>
     def main = fun() -> perim(12,34)
     ===> 92
 
-This makes it more obvious when symbols in quoted forms are bound
+This example tries to elucidate the point in time at which
+symbols in quoted forms are bound.  (TODO: we should also
+demonstrate the mechanism we plan to use to avert this.)
 
     def double = fun(n) -> mul(2, n)
     def quoted = fun() -> <<double(add(w, h))>>
@@ -59,12 +61,16 @@ Functions can be passed to functions.
 Residuation
 -----------
 
+See the README for the definition of the residuate operation.  Roughly
+speaking, it evaluates all the parts of the program that can be evaluated
+without knowing the precise input to the program.
+
     -> Functionality "Residuate Durito Program `main` Function" is implemented by
     -> shell command "bin/durito residuate-main %(test-body-file)"
 
     -> Tests for functionality "Residuate Durito Program `main` Function"
 
-Literals.
+Literals residuate to themselves.
 
     def main = fun() -> 123
     ===> 123
@@ -75,18 +81,18 @@ Literals.
     def main = fun() -> fun(r) -> add(1, r)
     ===> fun(r) -> add(1, r)
 
-Known names.
+Known names residuate to the value they are known to be bound to.
 
     def num = 123
     def main = fun() -> num
     ===> 123
 
-Builtins.
+Applications of builting residuate by evaluation when all of their arguments are known.
 
     def main = fun() -> add(123, 7)
     ===> 130
 
-Can't residuate an application if any of the actuals are not known.
+Can't residuate an application if any of the arguments are not known.
 
     def main = fun(r) -> add(123, r)
     ===> add(123, r)
