@@ -1,13 +1,13 @@
-Diodorus Tests
-==============
+Durito Tests
+============
 
 Eval
 ----
 
-    -> Functionality "Evaluate Diodorus Program" is implemented by
-    -> shell command "bin/diodorus eval %(test-body-file)"
+    -> Functionality "Evaluate Durito Program" is implemented by
+    -> shell command "bin/durito eval %(test-body-file)"
 
-    -> Tests for functionality "Evaluate Diodorus Program"
+    -> Tests for functionality "Evaluate Durito Program"
 
 Applying functions
 
@@ -59,10 +59,10 @@ Functions can be passed to functions.
 Residuation
 -----------
 
-    -> Functionality "Residuate Diodorus Program `main` Function" is implemented by
-    -> shell command "bin/diodorus residuate-main %(test-body-file)"
+    -> Functionality "Residuate Durito Program `main` Function" is implemented by
+    -> shell command "bin/durito residuate-main %(test-body-file)"
 
-    -> Tests for functionality "Residuate Diodorus Program `main` Function"
+    -> Tests for functionality "Residuate Durito Program `main` Function"
 
 Literals.
 

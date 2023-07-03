@@ -1,7 +1,7 @@
-module Language.Diodorus.Eval where
+module Language.Durito.Eval where
 
-import Language.Diodorus.Model
-import qualified Language.Diodorus.Env as Env
+import Language.Durito.Model
+import qualified Language.Durito.Env as Env
 
 
 evalExpr :: DEnv -> DEnv -> Expr -> Value

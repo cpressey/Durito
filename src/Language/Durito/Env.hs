@@ -1,4 +1,4 @@
-module Language.Diodorus.Env where
+module Language.Durito.Env where
 
 import qualified Data.Map as Map
 

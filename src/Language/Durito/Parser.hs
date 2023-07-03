@@ -1,10 +1,10 @@
 {-# LANGUAGE FlexibleContexts #-}
-module Language.Diodorus.Parser where
+module Language.Durito.Parser where
 
 import Text.ParserCombinators.Parsec
 
-import qualified Language.Diodorus.Env as Env
-import Language.Diodorus.Model
+import qualified Language.Durito.Env as Env
+import Language.Durito.Model
 
 
 program = do
@@ -86,7 +86,7 @@ name = do
 
 --
 
-parseDiodorus text = parse program "" text
+parseDurito text = parse program "" text
 
 parseLiteral text = case parse literal "" text of
     Right (Lit v) -> v

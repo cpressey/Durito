@@ -1,7 +1,7 @@
-module Language.Diodorus.Pretty where
+module Language.Durito.Pretty where
 
-import Language.Diodorus.Model
-import qualified Language.Diodorus.Env as Env
+import Language.Durito.Model
+import qualified Language.Durito.Env as Env
 
 
 renderExpr :: Expr -> String

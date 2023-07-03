@@ -4,12 +4,12 @@ import System.Environment
 import System.Exit
 import System.IO
 
-import Language.Diodorus.Model
-import qualified Language.Diodorus.Env as Env
-import qualified Language.Diodorus.Parser as Parser
-import qualified Language.Diodorus.Eval as Eval
-import qualified Language.Diodorus.Residuator as Residuator
-import qualified Language.Diodorus.Pretty as Pretty
+import Language.Durito.Model
+import qualified Language.Durito.Env as Env
+import qualified Language.Durito.Parser as Parser
+import qualified Language.Durito.Eval as Eval
+import qualified Language.Durito.Residuator as Residuator
+import qualified Language.Durito.Pretty as Pretty
 
 
 main = do
@@ -33,13 +33,13 @@ main = do
                     let result = Residuator.residuateFunDefn globals (Env.empty) fun
                     putStrLn $ Pretty.renderExpr result
         _ -> do
-            abortWith "Usage: diodorus (parse|eval|residuate-main) <input-filename>"
+            abortWith "Usage: Durito (parse|eval|residuate-main) <input-filename>"
 
 loadSource fileName = do
     handle <- openFile fileName ReadMode
     -- hSetEncoding handle utf8
     text <- hGetContents handle
-    case Parser.parseDiodorus text of
+    case Parser.parseDurito text of
         Right g -> do
             return g
         Left error ->

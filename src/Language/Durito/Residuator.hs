@@ -1,11 +1,11 @@
-module Language.Diodorus.Residuator where
+module Language.Durito.Residuator where
 
 --import Debug.Trace
 
-import Language.Diodorus.Model
-import qualified Language.Diodorus.Env as Env
+import Language.Durito.Model
+import qualified Language.Durito.Env as Env
 
-import qualified Language.Diodorus.Eval as Eval
+import qualified Language.Durito.Eval as Eval
 
 data KnownStatus = Known Value
                  | Unknown

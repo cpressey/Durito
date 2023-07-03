@@ -1,6 +1,6 @@
-module Language.Diodorus.Model where
+module Language.Durito.Model where
 
-import qualified Language.Diodorus.Env as Env
+import qualified Language.Durito.Env as Env
 
 type Name = String
 
