@@ -6,8 +6,8 @@ import qualified Language.Durito.Env as Env
 
 renderProgram :: Program -> String
 renderProgram (Program []) = ""
-renderProgram (Program ((name, expr):rest)) =
-    "def " ++ name ++ " = " ++ (renderExpr expr) ++ "\n" ++ renderProgram (Program rest)
+renderProgram (Program ((name, value):rest)) =
+    "def " ++ name ++ " = " ++ (renderValue value) ++ "\n" ++ renderProgram (Program rest)
 
 renderExpr :: Expr -> String
 renderExpr (Apply e es) =

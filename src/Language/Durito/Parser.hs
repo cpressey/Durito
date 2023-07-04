@@ -28,23 +28,27 @@ litFun = do
     keyword ")"
     keyword "->"
     e <- expr
-    return $ Lit $ Fun f e Env.empty
+    return $ Fun f e Env.empty
 
 litQuote = do
     keyword "<<"
     e <- expr
     keyword ">>"
     fspaces
-    return $ Lit $ Quote e
+    return $ Quote e
 
 litInt = do
     c <- digit
     cs <- many digit
     num <- return (read (c:cs) :: Integer)
     fspaces
-    return $ Lit $ Int num
+    return $ Int num
 
-expr = (try literal) <|> (try exprEval) <|> (try exprSubst) <|> (try exprApply) <|> exprName
+expr = (try exprLiteral) <|> (try exprEval) <|> (try exprSubst) <|> (try exprApply) <|> exprName
+
+exprLiteral = do
+    v <- literal
+    return $ Lit v
 
 exprEval = do
     keyword "eval"
@@ -99,8 +103,9 @@ name = do
 
 --
 
+parseDurito :: String -> Either ParseError Program
 parseDurito text = parse program "" text
 
 parseLiteral text = case parse literal "" text of
-    Right (Lit v) -> v
+    Right v -> v
     other -> error ("cannot parse literal: " ++ show other)

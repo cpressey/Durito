@@ -7,7 +7,7 @@ type Name = String
 type DEnv = Env.Env Name Value
 
 
-data Program = Program [(Name, Expr)]
+data Program = Program [(Name, Value)]
     deriving (Show, Ord, Eq)
 
 data Expr = Apply Expr [Expr]

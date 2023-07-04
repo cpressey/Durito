@@ -103,7 +103,7 @@ residuateGlobal globals other =
 residuateProgram program =
     let
         globals = makeInitialEnv program
-        f (name, (Lit fval)) = (name, Lit $ residuateGlobal globals fval)
+        f (name, value) = (name, residuateGlobal globals value)
     in
         mapProgram f program
 

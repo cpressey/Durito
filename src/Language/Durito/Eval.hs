@@ -54,6 +54,5 @@ evalProgram program actuals =
 
 makeInitialEnv (Program defns) = m defns where
     m [] = builtins
-    m ((name, (Lit value)): rest) = Env.insert name value $ m rest
-    m ((name, other): _) = error "non-literal toplevel"
+    m ((name, value): rest) = Env.insert name value $ m rest
     builtins = Env.extend Env.empty ["mul", "add"] [Builtin Mul, Builtin Add]
