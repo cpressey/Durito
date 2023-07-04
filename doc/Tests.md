@@ -109,29 +109,29 @@ without knowing the precise input to the program.
 Literals residuate to themselves.
 
     def main = fun() -> 123
-    ===> 123
+    ===> fun() -> 123
 
     def main = fun() -> <<add(123, r)>>
-    ===> <<add(123, r)>>
+    ===> fun() -> <<add(123, r)>>
 
     def main = fun() -> fun(r) -> add(1, r)
-    ===> fun(r) -> add(1, r)
+    ===> fun() -> fun(r) -> add(1, r)
 
 Known names residuate to the value they are known to be bound to.
 
     def num = 123
     def main = fun() -> num
-    ===> 123
+    ===> fun() -> 123
 
 Applications of builting residuate by evaluation when all of their arguments are known.
 
     def main = fun() -> add(123, 7)
-    ===> 130
+    ===> fun() -> 130
 
 Can't residuate an application if any of the arguments are not known.
 
     def main = fun(r) -> add(123, r)
-    ===> add(123, r)
+    ===> fun(r) -> add(123, r)
 
 Application of named global functions.  If a function was defined globally,
 then it must be evaluatable ahead-of-time, for it cannot close over any values
@@ -139,7 +139,7 @@ which might be unknown.
 
     def double = fun(x) -> mul(x, 2)
     def main = fun() -> double(53)
-    ===> 106
+    ===> fun() -> 106
 
 Can't residuate an application if the function is not known to be closing
 over no values.  Currently we assume that if the function was defined
@@ -148,40 +148,40 @@ pessimistic, but will serve us to start.
 
     def yark = fun(x, double) -> double(x)
     def main = fun(r) -> yark(53, fun(z) -> mul(z, 2))
-    ===> (fun(x, double) -> double(x))(53, fun(z) -> mul(z, 2))
+    ===> fun(r) -> (fun(x, double) -> double(x))(53, fun(z) -> mul(z, 2))
 
 Residuate over `eval`.
 
     def main = fun() -> eval <<add(123, 456)>>
-    ===> 579
+    ===> fun() -> 579
 
 Some miscellaneous old test cases.
 
     def pi = 3
     def main = fun() -> add(2, mul(pi, 5))
-    ===> 17
+    ===> fun() -> 17
 
     def main = fun() -> (fun(x) -> mul(x, x))(4)
-    ===> 16
+    ===> fun() -> 16
 
     def pi = 3
     def main = fun() -> (fun(x) -> mul(x, add(2, pi)))(4)
-    ===> 20
+    ===> fun() -> 20
 
     def main = fun() -> <<a(b(c), d)>>
-    ===> <<a(b(c), d)>>
+    ===> fun() -> <<a(b(c), d)>>
 
     def main = fun() -> eval <<add(3, 5)>>
-    ===> 8
+    ===> fun() -> 8
 
 Partial residuation.
 
     def pi = 3
     def main = fun(x) -> mul(x, add(2, pi))
-    ===> mul(x, 5)
+    ===> fun(x) -> mul(x, 5)
 
 No partial residuation inside literal functions -- not yet.
 
     def pi = 3
     def main = fun(y) -> (fun(x) -> mul(x, add(2, pi)))(y)
-    ===> (fun(x) -> mul(x, add(2, pi)))(y)
+    ===> fun(y) -> (fun(x) -> mul(x, add(2, pi)))(y)

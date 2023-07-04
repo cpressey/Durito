@@ -31,7 +31,7 @@ main = do
                     abortWith "No main function defined"
                 Just (Residuator.Known value) -> do
                     case (residuateGlobal globals "main" value) of
-                        Just expr -> putStrLn $ Pretty.renderExpr expr
+                        Just value' -> putStrLn $ Pretty.renderValue value'
                         Nothing ->
                             abortWith "main function could not be residuated"
         ["residuate", fileName] -> do
@@ -42,8 +42,11 @@ main = do
         _ -> do
             abortWith "Usage: durito (parse|eval|residuate|residuate-main) <input-filename>"
 
-residuateGlobal globals name fun@(Fun formals main _) =
-    Just $ Residuator.residuateFunDefn globals (Env.empty) fun
+residuateGlobal globals name fun@(Fun formals body denv) =
+    let
+        body' = Residuator.residuateFunDefn globals (Env.empty) fun
+    in
+        Just $ Fun formals body' denv
 residuateGlobal globals name other =
     Nothing
 
