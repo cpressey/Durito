@@ -196,13 +196,13 @@ No partial residuation inside literal functions -- not yet.
 Partial residuation inside `eval`.
 
     def id = fun(x) -> x
-    def main = fun(y) -> eval id(y)
+    def main = fun(y) -> eval add(y, id(<<add(2, 3)>>))
     ===> def id = fun(x) -> x
-    ===> def main = fun(y) -> eval y
+    ===> def main = fun(y) -> eval add(y, <<add(2, 3)>>)
 
 Partial residuation inside `subst` (both body and bindings).
 
     def id = fun(x) -> x
-    def main = fun(y) -> subst x -> id(2) in id(y)
+    def main = fun(y) -> subst x -> add(y, id(2)) in add(y, id(2))
     ===> def id = fun(x) -> x
-    ===> def main = fun(y) -> subst x -> 2 in y
+    ===> def main = fun(y) -> subst x -> add(y, 2) in add(y, 2)

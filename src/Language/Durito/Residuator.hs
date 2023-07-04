@@ -61,8 +61,7 @@ residuateExpr globals env orig@(Eval expr) =
         True ->
             Lit $ Eval.evalExpr (Env.map (\(Known v) -> v) globals) Env.empty orig
         _ ->
-            -- FIXME: salvage any residuatedExpr here!
-            orig
+            Eval residuatedExpr
 
 --
 -- Residuate an `subst`.
@@ -74,17 +73,18 @@ residuateExpr globals env orig@(Subst bindings expr) =
         residuatedExpr = residuateExpr globals env expr
         residuatedBindings = residuateBindings globals env bindings
         exprKnown = isKnown residuatedExpr
-        bindingsKnown = False  -- FIXME
+        bindingsKnown = all (isKnown) (map (snd) residuatedBindings)
     in case (exprKnown, bindingsKnown) of
         (True, True) ->
             Lit $ Eval.evalExpr (Env.map (\(Known v) -> v) globals) Env.empty orig
         _ ->
-            -- FIXME: salvage any residuatedBindings or residuatedExpr here!
-            orig
+            Subst residuatedBindings residuatedExpr
 
 residuateExpr globals env (Lit lit) = Lit $ residuateLit globals env lit
 
-residuateBindings globals env bindings = bindings  -- FIXME
+residuateBindings globals env [] = []
+residuateBindings globals env ((name, expr):rest) =
+    (name, residuateExpr globals env expr):residuateBindings globals env rest
 
 --
 -- Residuate a literal function.

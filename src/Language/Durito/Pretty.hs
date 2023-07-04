@@ -18,6 +18,7 @@ renderExpr (Apply e es) =
         renderApplier other = "(" ++ (renderExpr other) ++ ")"
 renderExpr (Name n) = n
 renderExpr (Eval e) = "eval " ++ renderExpr e
+renderExpr (Subst bindings e) = "subst " ++ (renderBindings bindings) ++ " in " ++ renderExpr e
 renderExpr (Lit v) = renderValue v
 
 renderExprList sep [] = ""
@@ -30,3 +31,9 @@ renderValue (Int i) = (show i)
 renderValue (Builtin Add) = "add"
 renderValue (Builtin Mul) = "mul"
 -- renderValue (Builtin b) = show b
+
+renderBindings [] = ""
+renderBindings [(name, expr)] = renderBinding name expr
+renderBindings ((name, expr):bindings) = (renderBinding name expr) ++ ", " ++ renderBindings bindings
+
+renderBinding name expr = name ++ " -> " ++ renderExpr expr
