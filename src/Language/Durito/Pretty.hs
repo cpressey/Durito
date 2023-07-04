@@ -6,7 +6,11 @@ import qualified Language.Durito.Env as Env
 
 renderExpr :: Expr -> String
 renderExpr (Apply e es) =
-    renderExpr e ++ "(" ++ (renderExprList ", " es) ++ ")"
+    renderApplier e ++ "(" ++ (renderExprList ", " es) ++ ")"
+    where
+        renderApplier (Name n) = n
+        renderApplier (Lit v@(Builtin _)) = renderValue v
+        renderApplier other = "(" ++ (renderExpr other) ++ ")"
 renderExpr (Name n) = n
 renderExpr (Eval e) = "eval " ++ renderExpr e
 renderExpr (Lit v) = renderValue v

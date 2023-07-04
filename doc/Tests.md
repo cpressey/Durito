@@ -141,14 +141,14 @@ which might be unknown.
     def main = fun() -> double(53)
     ===> 106
 
-> Can't residuate an application if the function is not known to be closing
-> over no values.  Currently we assume that if the function was defined
-> in any environment at all, it might close over some values.  This is somewhat
-> pessimistic, but will serve us to start.
-> 
->     def yark = fun(x, double) -> double(x)
->     def main = fun(r) -> yark(53, fun(z) -> mul(z, 2))
->     ===> yark(53, fun(z) -> mul(z, 2))
+Can't residuate an application if the function is not known to be closing
+over no values.  Currently we assume that if the function was defined
+in any environment at all, it might close over some values.  This is somewhat
+pessimistic, but will serve us to start.
+
+    def yark = fun(x, double) -> double(x)
+    def main = fun(r) -> yark(53, fun(z) -> mul(z, 2))
+    ===> (fun(x, double) -> double(x))(53, fun(z) -> mul(z, 2))
 
 Residuate over `eval`.
 
