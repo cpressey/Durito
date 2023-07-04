@@ -154,3 +154,33 @@ Residuate over `eval`.
 
     def main = fun() -> eval <<add(123, 456)>>
     ===> 579
+
+Some miscellaneous old test cases.
+
+    def pi = 3
+    def main = fun() -> add(2, mul(pi, 5))
+    ===> 17
+
+    def main = fun() -> (fun(x) -> mul(x, x))(4)
+    ===> 16
+
+    def pi = 3
+    def main = fun() -> (fun(x) -> mul(x, add(2, pi)))(4)
+    ===> 20
+
+    def main = fun() -> <<a(b(c), d)>>
+    ===> <<a(b(c), d)>>
+
+    def main = fun() -> eval <<add(3, 5)>>
+    ===> 8
+
+This test shows how Durito is currently not as aggressive as it could
+be wrt constant folding.  The `add(2, pi)` could be replaced by `6`.
+The reason it isn't is that we are currently cautious when dealing
+with literal functions on the assumption that they could capture local
+bindings.  Ideally we should analyze their contents to assure ourselves
+that our manipulations of them don't upset anything.
+
+    def pi = 3
+    def main = fun(x) -> mul(x, add(2, pi))
+    ===> mul(x, add(2, pi))
