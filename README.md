@@ -39,6 +39,8 @@ P is called the _residual_ of P.  The residual of P has semantics
 equivlaent to P itself.  That is, evaluating the residual of P has
 the same observable result as evaluating P itself.
 
+#### Termination
+
 Since Durito is Turing-complete, it is not possible to determine in
 all cases whether the evaluation of a part of a Durito program will
 terminate or not.  This is true regardless of whether the evaluation
@@ -51,10 +53,52 @@ terminate, then it fails to terminate ahead of time, that's all.
 Durito regards this situation as no worse than the same code failing to
 terminate at runtime.
 
-### Work in Progress
+#### Hygiene
 
-There are still some issues to clarify about exactly where names'
-bindings come from during `eval`.  Watch this space.
+Functions that are evaluated ahead of time are morally equivalent
+to macros.
+
+Hygiene is violated when the identifiers in a macro are bound to
+values that the macro writer didn't expect them to be bound to.
+
+Durito's `eval` always evaluates the given quoted program form in
+an environment that contains only builtins and globals (top-level
+identifiers).  So, for example,
+
+    def double = fun(n) -> mul(2, n)
+    def eight = fun() -> eval <<double(mul(2, 2))>>
+
+residuates to
+
+    def eight = 8
+
+while
+
+    def double = fun(n) -> eval <<mul(2, n)>>
+
+will produce a runtime error when `eval` attempts to evaluate the
+symbol `n`, which has no binding.
+
+To accomplish in Durito what the second version of `double` is
+presumably intending to accomplish -- that is, to subvert the
+base hygiene expectations and allow other bindings during `eval` --
+the idiomatic approach is to _modify the quoted form_ before
+passing it to `eval`.
+
+To this end, Durito provides a language construct called `subst`,
+which looks a little like `let`.  Unlike `let`, it operates
+directly on quoted forms.  In a give quoted form, it replaces
+all occurrences of given names with given values.
+
+There is no good reason this needs to be a built-in language
+construct; if Durito provided more general facilities for
+manipulating quoted forms, it could be built from them instead.
+But having it as its own `let`-like language construct is
+convenient and allows us to demonstrate how to subvert hygiene
+with it.  Namely,
+
+    def double = fun(n) ->
+        eval subst n -> n in <<mul(2, n)>>
 
 [Ahead-of-Time `eval`]: https://github.com/cpressey/Ahead-of-Time-eval
 [constant folding]: https://en.wikipedia.org/wiki/Constant_folding
