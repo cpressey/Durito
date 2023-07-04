@@ -29,11 +29,23 @@ main = do
             case Env.fetch "main" globals of
                 Nothing ->
                     abortWith "No main function defined"
-                Just (Residuator.Known fun@(Fun formals main _)) -> do
-                    let result = Residuator.residuateFunDefn globals (Env.empty) fun
-                    putStrLn $ Pretty.renderExpr result
+                Just (Residuator.Known value) -> do
+                    case (residuateGlobal globals "main" value) of
+                        Just expr -> putStrLn $ Pretty.renderExpr expr
+                        Nothing ->
+                            abortWith "main function could not be residuated"
+        ["residuate", fileName] -> do
+            program <- loadSource fileName
+            let globals = Residuator.makeInitialEnv program
+            let glah = Env.foldrWithKey (\name (Residuator.Known value) acc -> acc ++ [residuateGlobal globals name value]) [] globals
+            putStrLn $ show glah
         _ -> do
-            abortWith "Usage: Durito (parse|eval|residuate-main) <input-filename>"
+            abortWith "Usage: durito (parse|eval|residuate|residuate-main) <input-filename>"
+
+residuateGlobal globals name fun@(Fun formals main _) =
+    Just $ Residuator.residuateFunDefn globals (Env.empty) fun
+residuateGlobal globals name other =
+    Nothing
 
 loadSource fileName = do
     handle <- openFile fileName ReadMode

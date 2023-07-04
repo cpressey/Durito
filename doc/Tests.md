@@ -179,3 +179,9 @@ Partial residuation.
     def pi = 3
     def main = fun(x) -> mul(x, add(2, pi))
     ===> mul(x, 5)
+
+No partial residuation inside literal functions -- not yet.
+
+    def pi = 3
+    def main = fun(y) -> (fun(x) -> mul(x, add(2, pi)))(y)
+    ===> (fun(x) -> mul(x, add(2, pi)))(y)

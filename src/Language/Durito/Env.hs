@@ -22,3 +22,6 @@ extend env (formal:formals) (actual:actuals) =
 
 map :: Ord tk => (tv1 -> tv2) -> Env tk tv1 -> Env tk tv2
 map f env = env{ table=Map.map f (table env) }
+
+foldrWithKey :: (tk -> tv -> ta -> ta) -> ta -> Env tk tv -> ta
+foldrWithKey f acc0 env = Map.foldrWithKey f acc0 (table env)
