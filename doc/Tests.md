@@ -192,3 +192,17 @@ No partial residuation inside literal functions -- not yet.
     def main = fun(y) -> (fun(x) -> mul(x, add(2, pi)))(y)
     ===> def pi = 3
     ===> def main = fun(y) -> (fun(x) -> mul(x, add(2, pi)))(y)
+
+Partial residuation inside `eval`.
+
+    def id = fun(x) -> x
+    def main = fun(y) -> eval id(y)
+    ===> def id = fun(x) -> x
+    ===> def main = fun(y) -> eval y
+
+Partial residuation inside `subst` (both body and bindings).
+
+    def id = fun(x) -> x
+    def main = fun(y) -> subst x -> id(2) in id(y)
+    ===> def id = fun(x) -> x
+    ===> def main = fun(y) -> subst x -> 2 in y
