@@ -53,24 +53,47 @@ residuateExpr globals env orig@(Name n) = case Env.fetch n env of
 --
 -- Residuate an `eval`.
 --
-residuateExpr globals env orig@(Eval e) =
+residuateExpr globals env orig@(Eval expr) =
     let
-        residuatedE = residuateExpr globals env e
-        eKnown = isKnown residuatedE
-    in case eKnown of
+        residuatedExpr = residuateExpr globals env expr
+        exprKnown = isKnown residuatedExpr
+    in case exprKnown of
         True ->
             Lit $ Eval.evalExpr (Env.map (\(Known v) -> v) globals) Env.empty orig
         _ ->
+            -- FIXME: salvage any residuatedExpr here!
             orig
+
+--
+-- Residuate an `subst`.
+-- Ideally this should just be a function application!
+-- But we'd need lists and such for that
+--
+residuateExpr globals env orig@(Subst bindings expr) =
+    let
+        residuatedExpr = residuateExpr globals env expr
+        residuatedBindings = residuateBindings globals env bindings
+        exprKnown = isKnown residuatedExpr
+        bindingsKnown = False  -- FIXME
+    in case (exprKnown, bindingsKnown) of
+        (True, True) ->
+            Lit $ Eval.evalExpr (Env.map (\(Known v) -> v) globals) Env.empty orig
+        _ ->
+            -- FIXME: salvage any residuatedBindings or residuatedExpr here!
+            orig
+
+residuateExpr globals env (Lit lit) = Lit $ residuateLit globals env lit
+
+residuateBindings globals env bindings = bindings  -- FIXME
 
 --
 -- Residuate a literal function.
 -- When we residuate a literal function, we install in it the current environment.
 --
-residuateExpr globals env (Lit (Fun formals body _)) =
-    Lit (Fun formals body (Env.map (\(Known v) -> v) env))
+residuateLit globals env (Fun formals body denv) =
+    Fun formals body (Env.map (\(Known v) -> v) env)
 
-residuateExpr globals env other = other
+residuateLit globals env other = other
 
 --
 -- Residuate PROGRAMS
@@ -78,6 +101,7 @@ residuateExpr globals env other = other
 
 --
 -- There's a bit of a special mechanism for functions for now.
+-- Ideally we should just be able to call `residuateLit` for top-level literals.
 --
 -- When descending into function literals, we
 -- extend the known-env with the formals as unknowns
@@ -100,6 +124,8 @@ residuateProgram program =
     in
         mapProgram f program
 
+--
 -- Make initial known-map from globals.
 -- All globals are known.
+--
 makeInitialEnv p = Env.map (\v -> Known v) $ Eval.makeInitialEnv p
