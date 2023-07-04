@@ -21,6 +21,10 @@ isKnown _ = False
 
 
 residuateExpr :: KEnv -> KEnv -> Expr -> Expr
+
+--
+-- Residuate a function application.
+--
 residuateExpr globals env orig@(Apply e es) =
     let
         residuatedE = residuateExpr globals env e
@@ -31,14 +35,20 @@ residuateExpr globals env orig@(Apply e es) =
         (True, True) ->
             Lit $ Eval.evalExpr (Env.map (\(Known v) -> v) globals) Env.empty orig
         _ ->
-            orig
+            Apply residuatedE residuatedArgs
 
+--
+-- Residuate a usage of a name.
+--
 residuateExpr globals env orig@(Name n) = case Env.fetch n env of
     Just (Known v) -> Lit v
     _ -> case Env.fetch n globals of
         Just (Known v) -> Lit v
         _ -> orig
 
+--
+-- Residuate an `eval`.
+--
 residuateExpr globals env orig@(Eval e) =
     let
         residuatedE = residuateExpr globals env e
@@ -49,7 +59,10 @@ residuateExpr globals env orig@(Eval e) =
         _ ->
             orig
 
+--
+-- Residuate a literal function.
 -- When we residuate a literal function, we install in it the current environment.
+--
 residuateExpr globals env (Lit (Fun formals body _)) =
     Lit (Fun formals body (Env.map (\(Known v) -> v) env))
 

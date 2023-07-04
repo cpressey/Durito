@@ -141,14 +141,14 @@ which might be unknown.
     def main = fun() -> double(53)
     ===> 106
 
-Can't residuate an application if the function is not known to be closing
-over no values.  Currently we assume that if the function was defined
-in any environment at all, it might close over some values.  This is somewhat
-pessimistic, but will serve us to start.
-
-    def yark = fun(x, double) -> double(x)
-    def main = fun(r) -> yark(53, fun(z) -> mul(z, 2))
-    ===> yark(53, fun(z) -> mul(z, 2))
+> Can't residuate an application if the function is not known to be closing
+> over no values.  Currently we assume that if the function was defined
+> in any environment at all, it might close over some values.  This is somewhat
+> pessimistic, but will serve us to start.
+> 
+>     def yark = fun(x, double) -> double(x)
+>     def main = fun(r) -> yark(53, fun(z) -> mul(z, 2))
+>     ===> yark(53, fun(z) -> mul(z, 2))
 
 Residuate over `eval`.
 
@@ -174,13 +174,8 @@ Some miscellaneous old test cases.
     def main = fun() -> eval <<add(3, 5)>>
     ===> 8
 
-This test shows how Durito is currently not as aggressive as it could
-be wrt constant folding.  The `add(2, pi)` could be replaced by `6`.
-The reason it isn't is that we are currently cautious when dealing
-with literal functions on the assumption that they could capture local
-bindings.  Ideally we should analyze their contents to assure ourselves
-that our manipulations of them don't upset anything.
+Partial residuation.
 
     def pi = 3
     def main = fun(x) -> mul(x, add(2, pi))
-    ===> mul(x, add(2, pi))
+    ===> mul(x, 5)
