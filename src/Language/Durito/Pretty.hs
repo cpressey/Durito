@@ -4,6 +4,11 @@ import Language.Durito.Model
 import qualified Language.Durito.Env as Env
 
 
+renderProgram :: Program -> String
+renderProgram (Program []) = ""
+renderProgram (Program ((name, expr):rest)) =
+    "def " ++ name ++ " = " ++ (renderExpr expr) ++ "\n" ++ renderProgram (Program rest)
+
 renderExpr :: Expr -> String
 renderExpr (Apply e es) =
     renderApplier e ++ "(" ++ (renderExprList ", " es) ++ ")"

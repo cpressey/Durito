@@ -20,6 +20,10 @@ isKnown (Lit _) = True
 isKnown _ = False
 
 
+--
+-- Residuate EXPRESSIONS
+--
+
 residuateExpr :: KEnv -> KEnv -> Expr -> Expr
 
 --
@@ -68,9 +72,16 @@ residuateExpr globals env (Lit (Fun formals body _)) =
 
 residuateExpr globals env other = other
 
+--
+-- Residuate PROGRAMS
+--
+
+--
+-- There's a bit of a special mechanism for functions for now.
+--
 -- When descending into function literals, we
 -- extend the known-env with the formals as unknowns
-
+--
 residuateFunDefn :: KEnv -> KEnv -> Value -> Expr
 residuateFunDefn globals env (Fun formals body lexicalEnv) =
     let
@@ -81,6 +92,21 @@ residuateFunDefn globals env (Fun formals body lexicalEnv) =
     in
         result
 
--- All globals are known.
+residuateGlobal globals fun@(Fun formals body denv) =
+    let
+        body' = residuateFunDefn globals (Env.empty) fun
+    in
+        Fun formals body' denv
+residuateGlobal globals other =
+    other
 
+residuateProgram program =
+    let
+        globals = makeInitialEnv program
+        f (name, (Lit fval)) = (name, Lit $ residuateGlobal globals fval)
+    in
+        mapProgram f program
+
+-- Make initial known-map from globals.
+-- All globals are known.
 makeInitialEnv p = Env.map (\v -> Known v) $ Eval.makeInitialEnv p

@@ -28,6 +28,10 @@ data Builtin = Add | Mul
 
 --
 
+mapProgram f (Program defns) = Program (map f defns)
+
+--
+
 mapBindings f = map (\(name, expr) -> (name, f expr))
 
 substBindings :: [(Name, Value)] -> Expr -> Expr

@@ -17,35 +17,17 @@ main = do
     case args of
         ["parse", fileName] -> do
             program <- loadSource fileName
-            putStrLn $ show program
+            putStr $ Pretty.renderProgram program
         ("eval":(fileName: progArgs)) -> do
             program <- loadSource fileName
             let actuals = map (Parser.parseLiteral) progArgs
             let result = Eval.evalProgram program actuals
             putStrLn $ Pretty.renderValue result
-        ["residuate-main", fileName] -> do
-            program <- loadSource fileName
-            let globals = Residuator.makeInitialEnv program
-            case Env.fetch "main" globals of
-                Nothing ->
-                    abortWith "No main function defined"
-                Just (Residuator.Known value) -> do
-                    putStrLn $ Pretty.renderValue (residuateGlobal globals "main" value)
         ["residuate", fileName] -> do
             program <- loadSource fileName
-            let globals = Residuator.makeInitialEnv program
-            let glah = Env.foldrWithKey (\name (Residuator.Known value) acc -> acc ++ [residuateGlobal globals name value]) [] globals
-            putStrLn $ show $ map (Pretty.renderValue) glah
+            putStr $ Pretty.renderProgram $ Residuator.residuateProgram program
         _ -> do
-            abortWith "Usage: durito (parse|eval|residuate|residuate-main) <input-filename>"
-
-residuateGlobal globals name fun@(Fun formals body denv) =
-    let
-        body' = Residuator.residuateFunDefn globals (Env.empty) fun
-    in
-        Fun formals body' denv
-residuateGlobal globals name other =
-    other
+            abortWith "Usage: durito (parse|eval|residuate) <input-filename>"
 
 loadSource fileName = do
     handle <- openFile fileName ReadMode
