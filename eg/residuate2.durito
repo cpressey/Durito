@@ -1,0 +1,2 @@
+def yark = fun(x, double) -> add(double(x), add(1, 2))
+def main = fun(r) -> yark(53, fun(z) -> mul(z, 2))

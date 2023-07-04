@@ -82,28 +82,21 @@ residuateExpr globals env other = other
 -- When descending into function literals, we
 -- extend the known-env with the formals as unknowns
 --
-residuateFunDefn :: KEnv -> KEnv -> Value -> Expr
-residuateFunDefn globals env (Fun formals body lexicalEnv) =
+residuateDefn :: KEnv -> KEnv -> Value -> Value
+residuateDefn globals env (Fun formals body lexicalEnv) =
     let
         actuals = map (\_ -> Unknown) formals
         lexicalKnownEnv = Env.map (\v -> Known v) lexicalEnv
         env' = Env.extend lexicalKnownEnv formals actuals
-        result = residuateExpr globals env' body
+        body' = residuateExpr globals env' body
     in
-        result
-
-residuateGlobal globals fun@(Fun formals body denv) =
-    let
-        body' = residuateFunDefn globals (Env.empty) fun
-    in
-        Fun formals body' denv
-residuateGlobal globals other =
-    other
+        Fun formals body' lexicalEnv
+residuateDefn globals env other = other
 
 residuateProgram program =
     let
         globals = makeInitialEnv program
-        f (name, value) = (name, residuateGlobal globals value)
+        f (name, value) = (name, residuateDefn globals Env.empty value)
     in
         mapProgram f program
 
