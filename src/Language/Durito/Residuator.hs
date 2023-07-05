@@ -90,9 +90,14 @@ residuateBindings globals env ((name, expr):rest) =
 -- Residuate a literal function.
 -- When we residuate a literal function, we install in it the current environment.
 --
-residuateLit globals env (Fun formals body denv) =
-    Fun formals body (Env.map (\(Known v) -> v) env)
-
+residuateLit :: KEnv -> KEnv -> Value -> Value
+residuateLit globals env (Fun formals body lexicalEnv) =
+    let
+        installedEnv = (Env.map (\(Known v) -> v) env)
+        lexicalEnv' = Env.union installedEnv lexicalEnv
+        f' = Fun formals body lexicalEnv'
+    in
+        f'
 residuateLit globals env other = other
 
 --
