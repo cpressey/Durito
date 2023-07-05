@@ -90,42 +90,30 @@ residuateBindings globals env ((name, expr):rest) =
 -- Residuate a literal function.
 -- When we residuate a literal function, we install in it the current environment.
 --
+-- And when descending into function literals, we
+-- extend the known-env with the formals as unknowns
+--
 residuateLit :: KEnv -> KEnv -> Value -> Value
 residuateLit globals env (Fun formals body lexicalEnv) =
     let
         installedEnv = (Env.map (\(Known v) -> v) env)
         lexicalEnv' = Env.union installedEnv lexicalEnv
-        f' = Fun formals body lexicalEnv'
+        actuals = map (\_ -> Unknown) formals
+        lexicalKnownEnv = Env.map (\v -> Known v) lexicalEnv'
+        env' = Env.extend lexicalKnownEnv formals actuals
+        body' = residuateExpr globals env' body
     in
-        f'
+        Fun formals body' lexicalEnv'
 residuateLit globals env other = other
 
 --
 -- Residuate PROGRAMS
 --
 
---
--- There's a bit of a special mechanism for functions for now.
--- Ideally we should just be able to call `residuateLit` for top-level literals.
---
--- When descending into function literals, we
--- extend the known-env with the formals as unknowns
---
-residuateDefn :: KEnv -> KEnv -> Value -> Value
-residuateDefn globals env (Fun formals body lexicalEnv) =
-    let
-        actuals = map (\_ -> Unknown) formals
-        lexicalKnownEnv = Env.map (\v -> Known v) lexicalEnv
-        env' = Env.extend lexicalKnownEnv formals actuals
-        body' = residuateExpr globals env' body
-    in
-        Fun formals body' lexicalEnv
-residuateDefn globals env other = other
-
 residuateProgram program =
     let
         globals = makeInitialEnv program
-        f (name, value) = (name, residuateDefn globals Env.empty value)
+        f (name, value) = (name, residuateLit globals Env.empty value)
     in
         mapProgram f program
 

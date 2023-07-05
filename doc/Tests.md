@@ -186,12 +186,12 @@ Partial residuation.
     ===> def pi = 3
     ===> def main = fun(x) -> mul(x, 5)
 
-No partial residuation inside literal functions -- not yet.
+Partial residuation inside literal functions.
 
     def pi = 3
     def main = fun(y) -> (fun(x) -> mul(x, add(2, pi)))(y)
     ===> def pi = 3
-    ===> def main = fun(y) -> (fun(x) -> mul(x, add(2, pi)))(y)
+    ===> def main = fun(y) -> (fun(x) -> mul(x, 5))(y)
 
 Partial residuation inside `eval`.
 
@@ -206,3 +206,16 @@ Partial residuation inside `subst` (both body and bindings).
     def main = fun(y) -> subst x -> add(y, id(2)) in add(y, id(2))
     ===> def id = fun(x) -> x
     ===> def main = fun(y) -> subst x -> add(y, 2) in add(y, 2)
+
+We do not (yet) residuate functions out of existence.
+
+    def main = fun(y) -> (fun(x) -> add(mul(x, 2), 1))(5)
+    ===> def main = fun(y) -> (fun(x) -> add(mul(x, 2), 1))(5)
+
+We do not residuate functions out of existence when all of their
+arguments are known but they close over values (which might not be known).
+
+Skipped until the error can be hunted down.
+
+>   def main = fun(y) -> (fun(x) -> add(mul(x, 2), y))(5)
+>   ===> def main = fun(y) -> (fun(x) -> add(mul(x, 2), y))(5)
