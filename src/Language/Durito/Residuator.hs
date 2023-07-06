@@ -96,7 +96,9 @@ residuateBindings globals env ((name, expr):rest) =
 residuateLit :: KEnv -> KEnv -> Value -> Value
 residuateLit globals env (Fun formals body lexicalEnv) =
     let
-        installedEnv = (Env.map (\(Known v) -> v) env)
+        installedEnv = (Env.mapMaybe (knownOnly) env)
+        knownOnly (Known v) = Just v
+        knownOnly _ = Nothing
         lexicalEnv' = Env.union installedEnv lexicalEnv
         actuals = map (\_ -> Unknown) formals
         lexicalKnownEnv = Env.map (\v -> Known v) lexicalEnv'

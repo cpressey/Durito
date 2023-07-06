@@ -143,15 +143,12 @@ which might be unknown.
     ===> def double = fun(x) -> mul(x, 2)
     ===> def main = fun() -> 106
 
-Can't residuate an application if the function is not known to be closing
-over no values.  Currently we assume that if the function was defined
-in any environment at all, it might close over some values.  This is somewhat
-pessimistic, but will serve us to start.
+We can residuate a literal function if it closes over no variables.
 
     def yark = fun(x, double) -> double(x)
     def main = fun(r) -> yark(53, fun(z) -> mul(z, 2))
     ===> def yark = fun(x, double) -> double(x)
-    ===> def main = fun(r) -> (fun(x, double) -> double(x))(53, fun(z) -> mul(z, 2))
+    ===> def main = fun(r) -> 106
 
 Residuate over `eval`.
 
@@ -207,15 +204,20 @@ Partial residuation inside `subst` (both body and bindings).
     ===> def id = fun(x) -> x
     ===> def main = fun(y) -> subst x -> add(y, 2) in add(y, 2)
 
-We do not (yet) residuate functions out of existence.
+We (currently) residuate functions out of existence *only* if they
+close over no variables.
 
-    def main = fun(y) -> (fun(x) -> add(mul(x, 2), 1))(5)
-    ===> def main = fun(y) -> (fun(x) -> add(mul(x, 2), 1))(5)
+    def main = fun() -> (fun(x) -> add(mul(x, 2), 1))(5)
+    ===> def main = fun() -> 11
 
 We do not residuate functions out of existence when all of their
 arguments are known but they close over values (which might not be known).
 
-Skipped until the error can be hunted down.
+Skipped until the error can be addressed.
+
+The error here is that `y` isn't even in the (static analysis) environment
+when the innards of the function are residuated, because `y` is not known.
+(Environments in functions need to be handled better.)
 
 >   def main = fun(y) -> (fun(x) -> add(mul(x, 2), y))(5)
 >   ===> def main = fun(y) -> (fun(x) -> add(mul(x, 2), y))(5)
