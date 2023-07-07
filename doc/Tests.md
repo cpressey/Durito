@@ -46,6 +46,9 @@ Creating some lists of values.
     def main = fun() -> cons(1, cons(2, nil))
     ===> [1, 2]
 
+    def main = fun() -> cons(cons(<<a>>, <<123>>), nil)
+    ===> [[<<a>> | <<123>>]]
+
 ### Evaluation of `eval`
 
 The language implements `eval` at runtime (at least, for now).
@@ -82,6 +85,12 @@ only a `subst` form, which substitutes names in a quoted form with
 values.  However, this suffices for a lot of cases.
 
     def yarf = fun() -> subst a -> 123 in <<add(a, 99)>>
+    def main = fun() -> eval(yarf())
+    ===> 222
+
+There is also a builtin form of `subst`
+
+    def yarf = fun() -> substx(cons(cons(<<a>>, <<123>>), nil), <<add(a, 99)>>)
     def main = fun() -> eval(yarf())
     ===> 222
 

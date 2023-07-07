@@ -42,6 +42,7 @@ data Builtin = DuritoAdd
              | DuritoMul
              | DuritoEval
              | DuritoCons
+             | DuritoSubst
     deriving (Show, Ord, Eq)
 
 --

@@ -22,6 +22,9 @@ evalExpr globals env (Apply e es) =
                 builtinEval actuals
             Builtin DuritoCons ->
                 (\[x, y] -> Cons x y) actuals
+            Builtin DuritoSubst ->
+                -- FIXME should not be empty list!
+                (\[bindings, (Quote expr)] -> Quote (substBindings [] expr)) actuals
 
 evalExpr globals env (Name n) = case Env.fetch n env of
     Just v -> v
@@ -59,5 +62,5 @@ makeInitialEnv (Program defns) = m defns where
     m [] = builtins
     m ((name, value): rest) = Env.insert name value $ m rest
     builtins = Env.extend Env.empty
-        ["mul", "add", "eval", "cons", "nil"]
-        [Builtin DuritoMul, Builtin DuritoAdd, Builtin DuritoEval, Builtin DuritoCons, Nil]
+        ["mul", "add", "eval", "cons", "nil", "substx"]
+        [Builtin DuritoMul, Builtin DuritoAdd, Builtin DuritoEval, Builtin DuritoCons, Nil, Builtin DuritoSubst]
