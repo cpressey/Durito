@@ -44,7 +44,16 @@ litInt = do
     fspaces
     return $ Int num
 
-expr = (try exprLiteral) <|> (try exprApply) <|> exprName
+expr = (try exprList) <|> (try exprLiteral) <|> (try exprApply) <|> exprName
+
+exprList = do
+    keyword "["
+    es <- sepBy (expr) (keyword ",")
+    keyword "]"
+    return $ listToCons es
+    where
+        listToCons [] = (Name "nil")
+        listToCons (e:rest) = Apply (Name "cons") [e, listToCons rest]
 
 exprLiteral = do
     v <- literal

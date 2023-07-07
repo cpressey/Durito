@@ -46,6 +46,9 @@ Creating some lists of values.
     def main = fun() -> cons(1, cons(2, nil))
     ===> [1, 2]
 
+    def main = fun() -> [add(1, 4), mul(4, 4)]
+    ===> [5, 16]
+
     def main = fun() -> cons(cons(<<a>>, <<123>>), nil)
     ===> [[<<a>> | <<123>>]]
 
@@ -84,7 +87,7 @@ manipulating quoted forms.  Alas, at present, it does not.  It provides
 only a `subst` builtin, which substitutes names in a quoted form with
 values.  However, this suffices for a lot of cases.
 
-    def yarf = fun() -> subst(cons(cons(<<a>>, <<123>>), nil), <<add(a, 99)>>)
+    def yarf = fun() -> subst([cons(<<a>>, <<123>>)], <<add(a, 99)>>)
     def main = fun() -> eval(yarf())
     ===> 222
 
@@ -94,7 +97,7 @@ Compare this to the "undefined name" example above.
     def double = fun(n) -> mul(2, n)
     def quoted = fun() -> <<double(add(w, h))>>
     def perim = fun(w, h) ->
-        eval(subst(cons(cons(<<w>>, w), cons(cons(<<h>>, h), nil)), quoted()))
+        eval(subst([cons(<<w>>, w), cons(<<h>>, h)], quoted()))
     def main = fun() -> perim(12,34)
     ===> 92
 
@@ -204,7 +207,7 @@ Partial residuation inside `eval`.
 Partial residuation inside `subst` (both body and bindings).
 
     def id = fun(x) -> x
-    def main = fun(y) -> subst(cons(cons(<<y>>, add(y, id(2))), nil), <<add(y, id(2))>>)
+    def main = fun(y) -> subst([cons(<<y>>, add(y, id(2)))], <<add(y, id(2))>>)
     ===> def id = fun(x) -> x
     ===> def main = fun(y) -> subst(cons(cons(<<y>>, add(y, 2)), []), <<add(y, id(2))>>)
 
