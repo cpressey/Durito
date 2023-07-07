@@ -54,6 +54,25 @@ data Builtin = Add | Mul
 
 --
 
+freeVars ::  [Name] -> Expr -> [Name]
+freeVars b (Apply app exprs) =
+    (freeVars b app) ++ (freeVarsAll b exprs)
+freeVars b (Name n) =
+    if n `elem` b then [] else [n]
+freeVars b (Eval e) =
+    freeVars b e
+freeVars b (Lit (Fun formals body _ _)) =
+    freeVars (b ++ formals) body
+freeVars b (Lit _) =
+    []
+freeVars b (Subst bindings body) =
+    (freeVars b body) ++ (freeVarsAll b (map (snd) bindings))
+
+freeVarsAll b exprs = foldr (\expr acc -> acc ++ (freeVars b expr)) [] exprs
+
+
+--
+
 mapProgram f (Program defns) = Program (map f defns)
 
 --
