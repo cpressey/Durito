@@ -6,30 +6,16 @@ import qualified Language.Durito.Env as Env
 -- A "VEnv" maps names to values and is used
 -- to interpret the program at runtime.
 --
--- A "KEnv", meanwhile, maps names to the knowledge
--- about values ahead-of-time (static analysis).
---
--- There are a number of possibilities for making a
--- data structure that can represent either of these.
--- They are all contrived.  The pollution of having
--- both here, was chosen because it seems one of the
--- less contrived solutions.
---
 
 type Name = String
 
-data Value = Fun [Name] Expr VEnv KEnv
+data Value = Fun [Name] Expr VEnv
            | Quote Expr
            | Int Integer
            | Builtin Builtin
     deriving (Show, Ord, Eq)
 
 type VEnv = Env.Env Name Value
-
-data KnownStatus = Known Value
-    deriving (Show, Ord, Eq)
-
-type KEnv = Env.Env Name KnownStatus
 
 --
 -- AST of the program.
@@ -61,7 +47,7 @@ freeVars b (Name n) =
     if n `elem` b then [] else [n]
 freeVars b (Eval e) =
     freeVars b e
-freeVars b (Lit (Fun formals body _ _)) =
+freeVars b (Lit (Fun formals body _)) =
     freeVars (b ++ formals) body
 freeVars b (Lit _) =
     []

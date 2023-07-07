@@ -7,9 +7,26 @@ import qualified Language.Durito.Env as Env
 
 import qualified Language.Durito.Eval as Eval
 
+--
+-- A "KEnv" maps names to the knowledge
+-- about values ahead-of-time (static analysis).
+-- A name is either known (in which case we have its value)
+-- or it is not present in the map.
+--
+
+data KnownStatus = Known Value
+    deriving (Show, Ord, Eq)
+
+type KEnv = Env.Env Name KnownStatus
+
+makeKnown :: VEnv -> KEnv
+makeKnown venv = Env.map (\v -> Known v) venv
+
+extractKnown :: KEnv -> VEnv
+extractKnown kenv = Env.map (\(Known v) -> v) kenv
 
 isKnown :: KEnv -> Expr -> Bool
-isKnown globals expr@(Lit (Fun formals body venv kenv)) =
+isKnown globals expr@(Lit (Fun formals body _)) =
     -- A function value is known if it has no free variables.
     -- (Even better would be: if all its free variables are known...)
     let
@@ -19,10 +36,6 @@ isKnown globals expr@(Lit (Fun formals body venv kenv)) =
         fv == []
 isKnown _ (Lit _) = True
 isKnown _ _ = False
-
-extractKnown :: KEnv -> VEnv
-extractKnown kenv = Env.map (\(Known v) -> v) kenv
-
 
 --
 -- Residuate EXPRESSIONS
@@ -105,8 +118,9 @@ residuateBindings globals env ((name, expr):rest) =
 -- extend the known-env with the formals as unknowns
 --
 residuateLit :: KEnv -> KEnv -> Value -> Value
-residuateLit globals env (Fun formals body valueEnv knownEnv) =
+residuateLit globals env (Fun formals body valueEnv) =
     let
+        knownEnv = makeKnown valueEnv
         knownEnv' = Env.union env knownEnv
 
         -- Mark all the formals as "unknown":
@@ -114,8 +128,9 @@ residuateLit globals env (Fun formals body valueEnv knownEnv) =
         -- in case of shadowing.
 
         body' = residuateExpr globals knownEnv' body
+        valueEnv' = extractKnown knownEnv'
     in
-        Fun formals body' (extractKnown knownEnv') knownEnv'
+        Fun formals body' valueEnv'
 residuateLit globals env other = other
 
 --
