@@ -103,9 +103,6 @@ with it.  Namely,
 ### TODO
 
 *   arguments to `main()` (otherwise the whole exercise is kind of trivial -- every program can be residuated to a value!)
-*   rewrite `eval` as a builtin
-*   introduce list-type values
-*   rewrite `subst` as a builtin that takes a list
 *   minor: retain names when residuating (is this hard? -- residuate names first, mark name as residuated?)
 
 [Ahead-of-Time `eval`]: https://github.com/cpressey/Ahead-of-Time-eval

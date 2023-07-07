@@ -1,6 +1,7 @@
 module Language.Durito.Pretty where
 
 import Language.Durito.Model
+import Language.Durito.Builtins
 import qualified Language.Durito.Env as Env
 
 
