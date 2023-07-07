@@ -15,6 +15,10 @@ isKnown (Lit _) = True
 isKnown _ = False
 
 
+extractKnown :: KEnv -> VEnv
+extractKnown kenv = Env.map (\(Known v) -> v) kenv
+
+
 --
 -- Residuate EXPRESSIONS
 --
@@ -30,11 +34,13 @@ residuateExpr globals env orig@(Apply e es) =
         residuatedArgs = map (residuateExpr globals env) es
         eKnown = isKnown residuatedE
         argsKnown = all (isKnown) residuatedArgs
+        newExpr = Apply residuatedE residuatedArgs
     in case (eKnown, argsKnown) of
         (True, True) ->
-            Lit $ Eval.evalExpr (Env.map (\(Known v) -> v) globals) Env.empty orig
+            --traceShow newExpr
+                Lit $ Eval.evalExpr (extractKnown globals) (extractKnown env) newExpr
         _ ->
-            Apply residuatedE residuatedArgs
+            newExpr
 
 --
 -- Residuate a usage of a name.
@@ -52,11 +58,13 @@ residuateExpr globals env orig@(Eval expr) =
     let
         residuatedExpr = residuateExpr globals env expr
         exprKnown = isKnown residuatedExpr
+        newExpr = Eval residuatedExpr
     in case exprKnown of
         True ->
-            Lit $ Eval.evalExpr (Env.map (\(Known v) -> v) globals) Env.empty orig
+            --traceShow newExpr
+                Lit $ Eval.evalExpr (extractKnown globals) (extractKnown env) newExpr
         _ ->
-            Eval residuatedExpr
+            newExpr
 
 --
 -- Residuate an `subst`.
@@ -69,11 +77,13 @@ residuateExpr globals env orig@(Subst bindings expr) =
         residuatedBindings = residuateBindings globals env bindings
         exprKnown = isKnown residuatedExpr
         bindingsKnown = all (isKnown) (map (snd) residuatedBindings)
+        newExpr = Subst residuatedBindings residuatedExpr
     in case (exprKnown, bindingsKnown) of
         (True, True) ->
-            Lit $ Eval.evalExpr (Env.map (\(Known v) -> v) globals) Env.empty orig
+            --traceShow newExpr
+                Lit $ Eval.evalExpr (extractKnown globals) (extractKnown env) newExpr
         _ ->
-            Subst residuatedBindings residuatedExpr
+            newExpr
 
 residuateExpr globals env (Lit lit) = Lit $ residuateLit globals env lit
 
@@ -100,7 +110,7 @@ residuateLit globals env (Fun formals body valueEnv knownEnv) =
 
         body' = residuateExpr globals knownEnv' body
     in
-        Fun formals body' valueEnv knownEnv'
+        Fun formals body' (extractKnown knownEnv') knownEnv'
 residuateLit globals env other = other
 
 --

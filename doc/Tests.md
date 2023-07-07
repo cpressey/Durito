@@ -219,5 +219,5 @@ The error here is that `y` isn't even in the (static analysis) environment
 when the innards of the function are residuated, because `y` is not known.
 (Environments in functions need to be handled better.)
 
->   def main = fun(y) -> (fun(x) -> add(mul(x, 2), y))(5)
->   ===> def main = fun(y) -> (fun(x) -> add(mul(x, 2), y))(5)
+    def main = fun(y) -> (fun(x) -> add(mul(x, 2), y))(5)
+    ===> def main = fun(y) -> (fun(x) -> add(mul(x, 2), y))(5)
