@@ -87,7 +87,7 @@ passing it to `eval`.
 
 To this end, Durito provides a language construct called `subst`,
 which looks a little like `let`.  Unlike `let`, it operates
-directly on quoted forms.  In a give quoted form, it replaces
+directly on quoted forms.  In a given quoted form, it replaces
 all occurrences of given names with given values.
 
 There is no good reason this needs to be a built-in language
@@ -105,7 +105,22 @@ with it.  Namely,
 *   arguments to `main()` (otherwise the whole exercise is kind of trivial -- every program can be residuated to a value!)
 *   minor: retain names when residuating (is this hard? -- residuate names first, mark name as residuated?)
 *   allow literal lists to be literals -- this would mean recursing into them during analysis etc.
+    but note that we still need a "consing" i.e. `[]` syntax form that contains expressions.
+    (Or do we turn list values into cons-expressions when quoting them?  That seems too weird.)
 *   tests for inserting lists into quoted forms
+
+Possible enhancements (over and above demonstrating AoT-eval):
+
+*   `@macro` sugar that looks like Julia macros, arguments are automatically quoted
+    (and locals are automatically subst'ed in?)
+*   "ancillary syntax" that doesn't mean anything by itself but can be used for macros
+*   radical idea: since literal functions do not quite match function values
+    (the latter can close over values), maybe a "closure" is its own value
+    (that wraps another value, presumably a function value, which by itself
+    matches a literal function exactly)?  What are the implications of
+    "generic closures" such as this?  Could these also be rendered syntactically,
+    like `{x=14 fun(y) -> x+y}` ???  This is intriguing but definitely diverging
+    from the central research question here.
 
 [Ahead-of-Time `eval`]: https://github.com/cpressey/Ahead-of-Time-eval
 [constant folding]: https://en.wikipedia.org/wiki/Constant_folding
