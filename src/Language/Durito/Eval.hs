@@ -14,12 +14,14 @@ evalExpr globals env (Apply e es) =
         case evalExpr globals env e of
             Fun formals body lexicalEnv ->
                 evalExpr globals (Env.extend lexicalEnv formals actuals) body
-            Builtin Add ->
+            Builtin DuritoAdd ->
                 (\[(Int x), (Int y)] -> Int (x + y)) actuals
-            Builtin Mul ->
+            Builtin DuritoMul ->
                 (\[(Int x), (Int y)] -> Int (x * y)) actuals
-            Builtin Eval ->
+            Builtin DuritoEval ->
                 builtinEval actuals
+            Builtin DuritoCons ->
+                (\[x, y] -> Cons x y) actuals
 
 evalExpr globals env (Name n) = case Env.fetch n env of
     Just v -> v
@@ -56,4 +58,6 @@ makeInitialEnv :: Program -> VEnv
 makeInitialEnv (Program defns) = m defns where
     m [] = builtins
     m ((name, value): rest) = Env.insert name value $ m rest
-    builtins = Env.extend Env.empty ["mul", "add", "eval"] [Builtin Mul, Builtin Add, Builtin Eval]
+    builtins = Env.extend Env.empty
+        ["mul", "add", "eval", "cons", "nil"]
+        [Builtin DuritoMul, Builtin DuritoAdd, Builtin DuritoEval, Builtin DuritoCons, Nil]

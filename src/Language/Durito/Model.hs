@@ -12,6 +12,8 @@ type Name = String
 data Value = Fun [Name] Expr VEnv
            | Quote Expr
            | Int Integer
+           | Cons Value Value     -- shall not appear in Lits - use `cons` builtin
+           | Nil
            | Builtin Builtin
     deriving (Show, Ord, Eq)
 
@@ -23,6 +25,8 @@ type VEnv = Env.Env Name Value
 -- Note that literal values in the program source,
 -- including literal function values, are simply
 -- a Lit node containing a Value (defined above).
+-- Some Values may not appear in a Lit (or have
+-- restrictions on them when they are.)
 --
 
 data Program = Program [(Name, Value)]
@@ -34,7 +38,10 @@ data Expr = Apply Expr [Expr]
           | Subst [(Name, Expr)] Expr
     deriving (Show, Ord, Eq)
 
-data Builtin = Add | Mul | Eval
+data Builtin = DuritoAdd
+             | DuritoMul
+             | DuritoEval
+             | DuritoCons
     deriving (Show, Ord, Eq)
 
 --

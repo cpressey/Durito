@@ -41,6 +41,11 @@ Functions can be passed to functions.
     def main = fun() -> yark(53, fun(z) -> mul(z, 2))
     ===> 106
 
+Creating some lists of values.
+
+    def main = fun() -> cons(1, cons(2, nil))
+    ===> [1, 2]
+
 ### Evaluation of `eval`
 
 The language implements `eval` at runtime (at least, for now).

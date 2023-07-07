@@ -27,9 +27,16 @@ renderExprList sep (e:es) = (renderExpr e) ++ sep ++ (renderExprList sep es)
 renderValue (Fun args body _) = "fun(" ++ (renderExprList ", " (map (\n -> Name n) args)) ++ ") -> " ++ renderExpr body
 renderValue (Quote e) = "<<" ++ (renderExpr e) ++ ">>"
 renderValue (Int i) = (show i)
-renderValue (Builtin Add) = "add"
-renderValue (Builtin Mul) = "mul"
-renderValue (Builtin Eval) = "eval"
+renderValue (Cons h t) = "[" ++ (renderValue h) ++ (renderListTail t)
+renderValue (Nil) = "[]"
+renderValue (Builtin DuritoAdd) = "add"
+renderValue (Builtin DuritoMul) = "mul"
+renderValue (Builtin DuritoEval) = "eval"
+renderValue (Builtin DuritoCons) = "cons"
+
+renderListTail Nil = "]"
+renderListTail (Cons h t) = ", " ++ (renderValue h) ++ (renderListTail t)
+renderListTail t = " | " ++ (renderValue t) ++ "]"
 
 renderBindings [] = ""
 renderBindings [(name, expr)] = renderBinding name expr
