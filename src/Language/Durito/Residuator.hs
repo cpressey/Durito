@@ -7,12 +7,6 @@ import qualified Language.Durito.Env as Env
 
 import qualified Language.Durito.Eval as Eval
 
-data KnownStatus = Known Value
-                 | Unknown
-    deriving (Show, Ord, Eq)
-
-type KEnv = Env.Env Name KnownStatus
-
 
 isKnown :: Expr -> Bool
 isKnown (Lit (Fun formals body env)) = Env.isEmpty env
@@ -82,6 +76,7 @@ residuateExpr globals env orig@(Subst bindings expr) =
 
 residuateExpr globals env (Lit lit) = Lit $ residuateLit globals env lit
 
+residuateBindings :: KEnv -> KEnv -> [(Name, Expr)] -> [(Name, Expr)]
 residuateBindings globals env [] = []
 residuateBindings globals env ((name, expr):rest) =
     (name, residuateExpr globals env expr):residuateBindings globals env rest
@@ -112,6 +107,7 @@ residuateLit globals env other = other
 -- Residuate PROGRAMS
 --
 
+residuateProgram :: Program -> Program
 residuateProgram program =
     let
         globals = makeInitialEnv program

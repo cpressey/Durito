@@ -4,7 +4,7 @@ import Language.Durito.Model
 import qualified Language.Durito.Env as Env
 
 
-evalExpr :: DEnv -> DEnv -> Expr -> Value
+evalExpr :: VEnv -> VEnv -> Expr -> Value
 evalExpr globals env (Apply e es) =
     let
         actuals = map (evalExpr globals env) es
@@ -41,6 +41,7 @@ evalExpr globals env (Lit v) = v
 
 --
 
+evalProgram :: Program -> [Value] -> Value
 evalProgram program actuals =
     let
         globals = makeInitialEnv program

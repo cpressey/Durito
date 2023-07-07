@@ -2,10 +2,43 @@ module Language.Durito.Model where
 
 import qualified Language.Durito.Env as Env
 
+--
+-- A "VEnv" maps names to values and is used
+-- to interpret the program at runtime.
+--
+-- A "KEnv", meanwhile, maps names to the knowledge
+-- about values ahead-of-time (static analysis).
+--
+-- There are a number of possibilities for making a
+-- data structure that can represent either of these.
+-- They are all contrived.  The pollution of having
+-- both here, was chosen because it seems one of the
+-- less contrived solutions.
+--
+
 type Name = String
 
-type DEnv = Env.Env Name Value
+data Value = Fun [Name] Expr VEnv
+           | Quote Expr
+           | Int Integer
+           | Builtin Builtin
+    deriving (Show, Ord, Eq)
 
+type VEnv = Env.Env Name Value
+
+data KnownStatus = Known Value
+                 | Unknown
+    deriving (Show, Ord, Eq)
+
+type KEnv = Env.Env Name KnownStatus
+
+--
+-- AST of the program.
+--
+-- Note that literal values in the program source,
+-- including literal function values, are simply
+-- a Lit node containing a Value (defined above).
+--
 
 data Program = Program [(Name, Value)]
     deriving (Show, Ord, Eq)
@@ -15,12 +48,6 @@ data Expr = Apply Expr [Expr]
           | Eval Expr
           | Lit Value
           | Subst [(Name, Expr)] Expr
-    deriving (Show, Ord, Eq)
-
-data Value = Fun [Name] Expr DEnv
-           | Quote Expr
-           | Int Integer
-           | Builtin Builtin
     deriving (Show, Ord, Eq)
 
 data Builtin = Add | Mul
