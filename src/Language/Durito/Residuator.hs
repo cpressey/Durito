@@ -69,25 +69,6 @@ residuateExpr globals env orig@(Name n) = case Env.fetch n env of
         Just (Known v) -> Lit v
         _ -> orig
 
---
--- Residuate an `subst`.
--- Ideally this should just be a function application!
--- But we'd need lists and such for that
---
-residuateExpr globals env orig@(Subst bindings expr) =
-    let
-        residuatedExpr = residuateExpr globals env expr
-        residuatedBindings = residuateBindings globals env bindings
-        exprKnown = isKnown globals residuatedExpr
-        bindingsKnown = all (isKnown globals) (map (snd) residuatedBindings)
-        newExpr = Subst residuatedBindings residuatedExpr
-    in case (exprKnown, bindingsKnown) of
-        (True, True) ->
-            --traceShow newExpr
-                Lit $ Eval.evalExpr (extractKnown globals) (extractKnown env) newExpr
-        _ ->
-            newExpr
-
 residuateExpr globals env (Lit lit) = Lit $ residuateLit globals env lit
 
 residuateBindings :: KEnv -> KEnv -> [(Name, Expr)] -> [(Name, Expr)]

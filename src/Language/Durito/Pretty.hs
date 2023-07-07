@@ -17,7 +17,6 @@ renderExpr (Apply e es) =
         renderApplier (Lit v@(Builtin _)) = renderValue v
         renderApplier other = "(" ++ (renderExpr other) ++ ")"
 renderExpr (Name n) = n
-renderExpr (Subst bindings e) = "subst " ++ (renderBindings bindings) ++ " in " ++ renderExpr e
 renderExpr (Lit v) = renderValue v
 
 renderExprList sep [] = ""

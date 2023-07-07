@@ -44,24 +44,11 @@ litInt = do
     fspaces
     return $ Int num
 
-expr = (try exprLiteral) <|> (try exprSubst) <|> (try exprApply) <|> exprName
+expr = (try exprLiteral) <|> (try exprApply) <|> exprName
 
 exprLiteral = do
     v <- literal
     return $ Lit v
-
-exprSubst = do
-    keyword "subst"
-    bindings <- sepBy (replacementSpec) (keyword ",")
-    keyword "in"
-    e <- expr
-    return $ Subst bindings e
-
-replacementSpec = do
-    n <- name
-    keyword "->"
-    e <- expr
-    return $ (n, e)
 
 exprApply = do
     e <- (try subExpr) <|> exprName

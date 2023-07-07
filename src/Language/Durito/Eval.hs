@@ -28,13 +28,6 @@ evalExpr globals env (Name n) = case Env.fetch n env of
         Just v -> v
         Nothing -> error $ "undefined name " ++ n
 
-evalExpr globals env (Subst bindings e) =
-    let
-        evaledBindings = mapBindings (evalExpr globals env) bindings
-    in case evalExpr globals env e of
-        Quote expr -> Quote (substBindings evaledBindings expr)
-        _          -> error "type mismatch"
-
 evalExpr globals env (Lit (Fun formals body lexicalEnv)) =
     if lexicalEnv == Env.empty then (Fun formals body env) else
         error "assertion failed: function literal already has a lexical env"
@@ -55,8 +48,5 @@ evalProgram program actuals =
 
 makeInitialEnv :: Program -> VEnv
 makeInitialEnv (Program defns) = m defns where
-    m [] = builtins
+    m [] = builtinsEnv
     m ((name, value): rest) = Env.insert name value $ m rest
-    builtins = Env.extend Env.empty
-        ["mul", "add", "eval", "cons", "nil", "substx"]
-        [Builtin DuritoMul, Builtin DuritoAdd, Builtin DuritoEval, Builtin DuritoCons, Nil, Builtin DuritoSubst]

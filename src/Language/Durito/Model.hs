@@ -35,7 +35,6 @@ data Program = Program [(Name, Value)]
 data Expr = Apply Expr [Expr]
           | Name Name
           | Lit Value
-          | Subst [(Name, Expr)] Expr
     deriving (Show, Ord, Eq)
 
 freeVars ::  [Name] -> Expr -> [Name]
@@ -47,8 +46,6 @@ freeVars b (Lit (Fun formals body _)) =
     freeVars (b ++ formals) body
 freeVars b (Lit _) =
     []
-freeVars b (Subst bindings body) =
-    (freeVars b body) ++ (freeVarsAll b (map (snd) bindings))
 
 freeVarsAll b exprs =
     foldr (\expr acc -> acc ++ (freeVars b expr)) [] exprs
@@ -88,11 +85,6 @@ substBinding name value (Apply e1 es) =
     Apply (substBinding name value e1) (map (substBinding name value) es)
 substBinding name value expr@(Name n) =
     if name == n then (Lit value) else expr
-substBinding name value (Subst bindings body) =
-    let
-        bindings' = mapBindings (substBinding name value) bindings
-    in
-        Subst bindings' (substBinding name value body)
 substBinding name value other =
     other
 
@@ -114,3 +106,7 @@ evalBuiltin DuritoSubst [bindings, (Quote expr)] =
         Quote (substBindings pairs expr)
 evalBuiltin other args =
     error $ (show other) ++ (show args)
+
+builtinsEnv = Env.extend Env.empty
+    ["mul", "add", "eval", "cons", "nil", "subst"]
+    [Builtin DuritoMul, Builtin DuritoAdd, Builtin DuritoEval, Builtin DuritoCons, Nil, Builtin DuritoSubst]
