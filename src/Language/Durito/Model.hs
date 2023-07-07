@@ -68,7 +68,8 @@ freeVars b (Lit _) =
 freeVars b (Subst bindings body) =
     (freeVars b body) ++ (freeVarsAll b (map (snd) bindings))
 
-freeVarsAll b exprs = foldr (\expr acc -> acc ++ (freeVars b expr)) [] exprs
+freeVarsAll b exprs =
+    foldr (\expr acc -> acc ++ (freeVars b expr)) [] exprs
 
 
 --

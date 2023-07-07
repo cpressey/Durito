@@ -8,12 +8,17 @@ import qualified Language.Durito.Env as Env
 import qualified Language.Durito.Eval as Eval
 
 
-isKnown :: Expr -> Bool
--- FIXME look through the body and see if there are any identifiers that are not in KEnv
-isKnown (Lit (Fun formals body env kenv)) = Env.isEmpty env
-isKnown (Lit _) = True
-isKnown _ = False
-
+isKnown :: KEnv -> Expr -> Bool
+isKnown globals expr@(Lit (Fun formals body venv kenv)) =
+    -- A function value is known if it has no free variables.
+    -- (Even better would be: if all its free variables are known...)
+    let
+        b = Env.keys globals
+        fv = freeVars b expr
+    in
+        fv == []
+isKnown _ (Lit _) = True
+isKnown _ _ = False
 
 extractKnown :: KEnv -> VEnv
 extractKnown kenv = Env.map (\(Known v) -> v) kenv
@@ -32,8 +37,8 @@ residuateExpr globals env orig@(Apply e es) =
     let
         residuatedE = residuateExpr globals env e
         residuatedArgs = map (residuateExpr globals env) es
-        eKnown = isKnown residuatedE
-        argsKnown = all (isKnown) residuatedArgs
+        eKnown = isKnown globals residuatedE
+        argsKnown = all (isKnown globals) residuatedArgs
         newExpr = Apply residuatedE residuatedArgs
     in case (eKnown, argsKnown) of
         (True, True) ->
@@ -57,7 +62,7 @@ residuateExpr globals env orig@(Name n) = case Env.fetch n env of
 residuateExpr globals env orig@(Eval expr) =
     let
         residuatedExpr = residuateExpr globals env expr
-        exprKnown = isKnown residuatedExpr
+        exprKnown = isKnown globals residuatedExpr
         newExpr = Eval residuatedExpr
     in case exprKnown of
         True ->
@@ -75,8 +80,8 @@ residuateExpr globals env orig@(Subst bindings expr) =
     let
         residuatedExpr = residuateExpr globals env expr
         residuatedBindings = residuateBindings globals env bindings
-        exprKnown = isKnown residuatedExpr
-        bindingsKnown = all (isKnown) (map (snd) residuatedBindings)
+        exprKnown = isKnown globals residuatedExpr
+        bindingsKnown = all (isKnown globals) (map (snd) residuatedBindings)
         newExpr = Subst residuatedBindings residuatedExpr
     in case (exprKnown, bindingsKnown) of
         (True, True) ->

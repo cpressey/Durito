@@ -31,3 +31,6 @@ foldrWithKey f acc0 env = Map.foldrWithKey f acc0 (table env)
 
 union :: Ord tk => Env tk tv -> Env tk tv -> Env tk tv
 union env1 env2 = Env { table=Map.union (table env1) (table env2) }
+
+keys :: Env tk tv -> [tk]
+keys env = Prelude.map (fst) (Map.toList (table env))

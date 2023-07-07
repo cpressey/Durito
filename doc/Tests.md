@@ -213,11 +213,10 @@ close over no variables.
 We do not residuate functions out of existence when all of their
 arguments are known but they close over values (which might not be known).
 
-Skipped until the error can be addressed.
-
-The error here is that `y` isn't even in the (static analysis) environment
-when the innards of the function are residuated, because `y` is not known.
-(Environments in functions need to be handled better.)
+This can be checked by checking if the function has any free variables,
+and if so, it is considered unknown.
 
     def main = fun(y) -> (fun(x) -> add(mul(x, 2), y))(5)
     ===> def main = fun(y) -> (fun(x) -> add(mul(x, 2), y))(5)
+
+TODO: test shadowing edge case
