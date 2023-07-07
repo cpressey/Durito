@@ -98,9 +98,9 @@ evalBuiltin DuritoSubst [bindings, (Quote expr)] =
     let
         pairs = convertBindings bindings
         convertBindings Nil = []
-        convertBindings (Cons (Cons (Quote (Name n)) (Quote (Lit v))) tail) =
+        convertBindings (Cons (Cons (Quote (Name n)) (Cons (Quote (Lit v)) Nil)) tail) =
             ((n, v):convertBindings tail)
-        convertBindings (Cons (Cons (Quote (Name n)) v) tail) =
+        convertBindings (Cons (Cons (Quote (Name n)) (Cons v Nil)) tail) =
             ((n, v):convertBindings tail)
     in
         Quote (substBindings pairs expr)

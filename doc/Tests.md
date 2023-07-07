@@ -87,7 +87,7 @@ manipulating quoted forms.  Alas, at present, it does not.  It provides
 only a `subst` builtin, which substitutes names in a quoted form with
 values.  However, this suffices for a lot of cases.
 
-    def yarf = fun() -> subst([cons(<<a>>, <<123>>)], <<add(a, 99)>>)
+    def yarf = fun() -> subst([[<<a>>, <<123>>]], <<add(a, 99)>>)
     def main = fun() -> eval(yarf())
     ===> 222
 
@@ -97,7 +97,7 @@ Compare this to the "undefined name" example above.
     def double = fun(n) -> mul(2, n)
     def quoted = fun() -> <<double(add(w, h))>>
     def perim = fun(w, h) ->
-        eval(subst([cons(<<w>>, w), cons(<<h>>, h)], quoted()))
+        eval(subst([[<<w>>, w], [<<h>>, h]], quoted()))
     def main = fun() -> perim(12,34)
     ===> 92
 
@@ -207,9 +207,9 @@ Partial residuation inside `eval`.
 Partial residuation inside `subst` (both body and bindings).
 
     def id = fun(x) -> x
-    def main = fun(y) -> subst([cons(<<y>>, add(y, id(2)))], <<add(y, id(2))>>)
+    def main = fun(y) -> subst([[<<y>>, add(y, id(2))]], <<add(y, id(2))>>)
     ===> def id = fun(x) -> x
-    ===> def main = fun(y) -> subst(cons(cons(<<y>>, add(y, 2)), []), <<add(y, id(2))>>)
+    ===> def main = fun(y) -> subst(cons(cons(<<y>>, cons(add(y, 2), [])), []), <<add(y, id(2))>>)
 
 We (currently) residuate functions out of existence *only* if they
 close over no variables.
