@@ -44,16 +44,11 @@ litInt = do
     fspaces
     return $ Int num
 
-expr = (try exprLiteral) <|> (try exprEval) <|> (try exprSubst) <|> (try exprApply) <|> exprName
+expr = (try exprLiteral) <|> (try exprSubst) <|> (try exprApply) <|> exprName
 
 exprLiteral = do
     v <- literal
     return $ Lit v
-
-exprEval = do
-    keyword "eval"
-    e <- expr
-    return $ Eval e
 
 exprSubst = do
     keyword "subst"

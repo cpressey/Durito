@@ -30,12 +30,11 @@ data Program = Program [(Name, Value)]
 
 data Expr = Apply Expr [Expr]
           | Name Name
-          | Eval Expr
           | Lit Value
           | Subst [(Name, Expr)] Expr
     deriving (Show, Ord, Eq)
 
-data Builtin = Add | Mul
+data Builtin = Add | Mul | Eval
     deriving (Show, Ord, Eq)
 
 --
@@ -45,8 +44,6 @@ freeVars b (Apply app exprs) =
     (freeVars b app) ++ (freeVarsAll b exprs)
 freeVars b (Name n) =
     if n `elem` b then [] else [n]
-freeVars b (Eval e) =
-    freeVars b e
 freeVars b (Lit (Fun formals body _)) =
     freeVars (b ++ formals) body
 freeVars b (Lit _) =
@@ -76,8 +73,6 @@ substBinding name value (Apply e1 es) =
     Apply (substBinding name value e1) (map (substBinding name value) es)
 substBinding name value expr@(Name n) =
     if name == n then (Lit value) else expr
-substBinding name value (Eval expr) =
-    Eval (substBinding name value expr)
 substBinding name value (Subst bindings body) =
     let
         bindings' = mapBindings (substBinding name value) bindings

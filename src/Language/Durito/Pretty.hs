@@ -17,7 +17,6 @@ renderExpr (Apply e es) =
         renderApplier (Lit v@(Builtin _)) = renderValue v
         renderApplier other = "(" ++ (renderExpr other) ++ ")"
 renderExpr (Name n) = n
-renderExpr (Eval e) = "eval " ++ renderExpr e
 renderExpr (Subst bindings e) = "subst " ++ (renderBindings bindings) ++ " in " ++ renderExpr e
 renderExpr (Lit v) = renderValue v
 
@@ -30,7 +29,7 @@ renderValue (Quote e) = "<<" ++ (renderExpr e) ++ ">>"
 renderValue (Int i) = (show i)
 renderValue (Builtin Add) = "add"
 renderValue (Builtin Mul) = "mul"
--- renderValue (Builtin b) = show b
+renderValue (Builtin Eval) = "eval"
 
 renderBindings [] = ""
 renderBindings [(name, expr)] = renderBinding name expr

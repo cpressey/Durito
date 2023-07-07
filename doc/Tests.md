@@ -46,13 +46,13 @@ Functions can be passed to functions.
 The language implements `eval` at runtime (at least, for now).
 
     def double = fun(n) -> mul(2, n)
-    def main = fun() -> eval <<double(add(12, 34))>>
+    def main = fun() -> eval(<<double(add(12, 34))>>)
     ===> 92
 
 The argument to `eval` must be a quoted form.
 
     def double = fun(n) -> mul(2, n)
-    def scram = fun(x) -> double(eval x)
+    def scram = fun(x) -> double(eval(x))
     def main = fun() -> scram(99)
     ???> type
 
@@ -63,7 +63,7 @@ or formal arguments, will not be bound.
 
     def double = fun(n) -> mul(2, n)
     def quoted = fun() -> <<double(add(w, h))>>
-    def perim = fun(w, h) -> eval quoted()
+    def perim = fun(w, h) -> eval(quoted())
     def main = fun() -> perim(12,34)
     ???> undefined name
 
@@ -77,7 +77,7 @@ only a `subst` form, which substitutes names in a quoted form with
 values.  However, this suffices for a lot of cases.
 
     def yarf = fun() -> subst a -> 123 in <<add(a, 99)>>
-    def main = fun() -> eval yarf()
+    def main = fun() -> eval(yarf())
     ===> 222
 
 Using this, we may introduce local variables explicitly during `eval`.
@@ -86,11 +86,11 @@ Compare this to the "undefined name" example above.
     def double = fun(n) -> mul(2, n)
     def quoted = fun() -> <<double(add(w, h))>>
     def perim = fun(w, h) ->
-        eval subst
+        eval(subst
             w -> w,
             h -> h
         in
-            quoted()
+            quoted())
     def main = fun() -> perim(12,34)
     ===> 92
 
@@ -152,7 +152,7 @@ We can residuate a literal function if it closes over no variables.
 
 Residuate over `eval`.
 
-    def main = fun() -> eval <<add(123, 456)>>
+    def main = fun() -> eval(<<add(123, 456)>>)
     ===> def main = fun() -> 579
 
 Some miscellaneous old test cases.
@@ -173,7 +173,7 @@ Some miscellaneous old test cases.
     def main = fun() -> <<a(b(c), d)>>
     ===> def main = fun() -> <<a(b(c), d)>>
 
-    def main = fun() -> eval <<add(3, 5)>>
+    def main = fun() -> eval(<<add(3, 5)>>)
     ===> def main = fun() -> 8
 
 Partial residuation.
@@ -193,9 +193,9 @@ Partial residuation inside literal functions.
 Partial residuation inside `eval`.
 
     def id = fun(x) -> x
-    def main = fun(y) -> eval add(y, id(<<add(2, 3)>>))
+    def main = fun(y) -> eval(add(y, id(<<add(2, 3)>>)))
     ===> def id = fun(x) -> x
-    ===> def main = fun(y) -> eval add(y, <<add(2, 3)>>)
+    ===> def main = fun(y) -> eval(add(y, <<add(2, 3)>>))
 
 Partial residuation inside `subst` (both body and bindings).
 

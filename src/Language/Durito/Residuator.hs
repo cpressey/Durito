@@ -70,21 +70,6 @@ residuateExpr globals env orig@(Name n) = case Env.fetch n env of
         _ -> orig
 
 --
--- Residuate an `eval`.
---
-residuateExpr globals env orig@(Eval expr) =
-    let
-        residuatedExpr = residuateExpr globals env expr
-        exprKnown = isKnown globals residuatedExpr
-        newExpr = Eval residuatedExpr
-    in case exprKnown of
-        True ->
-            --traceShow newExpr
-                Lit $ Eval.evalExpr (extractKnown globals) (extractKnown env) newExpr
-        _ ->
-            newExpr
-
---
 -- Residuate an `subst`.
 -- Ideally this should just be a function application!
 -- But we'd need lists and such for that

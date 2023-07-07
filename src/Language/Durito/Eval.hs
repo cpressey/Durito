@@ -8,6 +8,8 @@ evalExpr :: VEnv -> VEnv -> Expr -> Value
 evalExpr globals env (Apply e es) =
     let
         actuals = map (evalExpr globals env) es
+        builtinEval [(Quote qe)] = evalExpr globals Env.empty qe
+        builtinEval other = error ("type mismatch: " ++ show other)
     in
         case evalExpr globals env e of
             Fun formals body lexicalEnv ->
@@ -16,16 +18,14 @@ evalExpr globals env (Apply e es) =
                 (\[(Int x), (Int y)] -> Int (x + y)) actuals
             Builtin Mul ->
                 (\[(Int x), (Int y)] -> Int (x * y)) actuals
+            Builtin Eval ->
+                builtinEval actuals
 
 evalExpr globals env (Name n) = case Env.fetch n env of
     Just v -> v
     Nothing -> case Env.fetch n globals of
         Just v -> v
         Nothing -> error $ "undefined name " ++ n
-
-evalExpr globals env (Eval e) = case evalExpr globals env e of
-    Quote qe -> evalExpr globals Env.empty qe
-    _        -> error "type mismatch"
 
 evalExpr globals env (Subst bindings e) =
     let
@@ -58,4 +58,4 @@ evalProgram program actuals =
 makeInitialEnv (Program defns) = m defns where
     m [] = builtins
     m ((name, value): rest) = Env.insert name value $ m rest
-    builtins = Env.extend Env.empty ["mul", "add"] [Builtin Mul, Builtin Add]
+    builtins = Env.extend Env.empty ["mul", "add", "eval"] [Builtin Mul, Builtin Add, Builtin Eval]
