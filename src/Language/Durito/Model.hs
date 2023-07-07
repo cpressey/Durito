@@ -100,8 +100,9 @@ evalBuiltin DuritoSubst [bindings, (Quote expr)] =
     let
         pairs = convertBindings bindings
         convertBindings Nil = []
-        convertBindings (Cons (Cons k v) tail) =
-            ((k, v):convertBindings tail)
+        convertBindings (Cons (Cons (Quote (Name n)) (Quote (Lit v))) tail) =
+            ((n, v):convertBindings tail)
     in
-        -- FIXME!
-        Quote (substBindings [] expr)
+        Quote (substBindings pairs expr)
+evalBuiltin other args =
+    error $ (show other) ++ (show args)
