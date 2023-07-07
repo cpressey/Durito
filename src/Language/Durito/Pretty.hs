@@ -29,10 +29,7 @@ renderValue (Quote e) = "<<" ++ (renderExpr e) ++ ">>"
 renderValue (Int i) = (show i)
 renderValue (Cons h t) = "[" ++ (renderValue h) ++ (renderListTail t)
 renderValue (Nil) = "[]"
-renderValue (Builtin DuritoAdd) = "add"
-renderValue (Builtin DuritoMul) = "mul"
-renderValue (Builtin DuritoEval) = "eval"
-renderValue (Builtin DuritoCons) = "cons"
+renderValue (Builtin bi) = renderBuiltin bi
 
 renderListTail Nil = "]"
 renderListTail (Cons h t) = ", " ++ (renderValue h) ++ (renderListTail t)

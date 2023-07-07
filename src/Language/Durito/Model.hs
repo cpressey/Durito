@@ -68,6 +68,12 @@ data Builtin = DuritoAdd
              | DuritoSubst
     deriving (Show, Ord, Eq)
 
+renderBuiltin DuritoAdd = "add"
+renderBuiltin DuritoMul = "mul"
+renderBuiltin DuritoEval = "eval"
+renderBuiltin DuritoCons = "cons"
+renderBuiltin DuritoSubst = "subst"
+
 --
 -- Implementation of "subst"
 --
@@ -101,6 +107,8 @@ evalBuiltin DuritoSubst [bindings, (Quote expr)] =
         pairs = convertBindings bindings
         convertBindings Nil = []
         convertBindings (Cons (Cons (Quote (Name n)) (Quote (Lit v))) tail) =
+            ((n, v):convertBindings tail)
+        convertBindings (Cons (Cons (Quote (Name n)) v) tail) =
             ((n, v):convertBindings tail)
     in
         Quote (substBindings pairs expr)
