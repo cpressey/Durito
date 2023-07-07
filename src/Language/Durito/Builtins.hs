@@ -1,5 +1,6 @@
 module Language.Durito.Builtins where
 
+import Language.Durito.BuiltinType
 import qualified Language.Durito.Env as Env
 import Language.Durito.Model
 
@@ -27,13 +28,15 @@ substBinding name value expr@(Name n) =
 substBinding name value other =
     other
 
-evalBuiltin DuritoAdd [(Int x), (Int y)] =
+evalBuiltin _ DuritoAdd [(Int x), (Int y)] =
     Int (x + y)
-evalBuiltin DuritoMul [(Int x), (Int y)] =
+evalBuiltin _ DuritoMul [(Int x), (Int y)] =
     Int (x * y)
-evalBuiltin DuritoCons [x, y] =
+evalBuiltin _ DuritoCons [x, y] =
     Cons x y
-evalBuiltin DuritoSubst [bindings, (Quote expr)] =
+evalBuiltin evaluator DuritoEval [(Quote qe)] =
+    evaluator qe
+evalBuiltin _ DuritoSubst [bindings, (Quote expr)] =
     let
         pairs = convertBindings bindings
         convertBindings Nil = []
@@ -43,8 +46,8 @@ evalBuiltin DuritoSubst [bindings, (Quote expr)] =
             ((n, v):convertBindings tail)
     in
         Quote (substBindings pairs expr)
-evalBuiltin other args =
-    error $ (show other) ++ (show args)
+evalBuiltin _ other args =
+    error $ "type mismatch: " ++ (show other) ++ " " ++ (show args)
 
 builtinsEnv = Env.extend Env.empty
     ["mul", "add", "eval", "cons", "nil", "subst"]

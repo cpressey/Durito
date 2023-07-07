@@ -1,16 +1,7 @@
 module Language.Durito.Model where
 
 import qualified Language.Durito.Env as Env
-
---
--- These should really be defined in Builtins, but, circularity.
-
-data Builtin = DuritoAdd
-             | DuritoMul
-             | DuritoEval
-             | DuritoCons
-             | DuritoSubst
-    deriving (Show, Ord, Eq)
+import Language.Durito.BuiltinType
 
 --
 -- A "VEnv" maps names to values and is used

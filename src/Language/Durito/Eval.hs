@@ -9,19 +9,13 @@ evalExpr :: VEnv -> VEnv -> Expr -> Value
 evalExpr globals env (Apply e es) =
     let
         actuals = map (evalExpr globals env) es
+        evaluator = evalExpr globals Env.empty
     in
         case evalExpr globals env e of
             Fun formals body lexicalEnv ->
                 evalExpr globals (Env.extend lexicalEnv formals actuals) body
-            Builtin DuritoEval ->
-                -- Special case, this is here to avoid circularity
-                let
-                    builtinEval [(Quote qe)] = evalExpr globals Env.empty qe
-                    builtinEval other = error ("type mismatch: " ++ show other)
-                in
-                    builtinEval actuals
             Builtin bi ->
-                (evalBuiltin bi) actuals
+                (evalBuiltin evaluator bi) actuals
 
 evalExpr globals env (Name n) = case Env.fetch n env of
     Just v -> v
