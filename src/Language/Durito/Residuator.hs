@@ -9,6 +9,7 @@ import qualified Language.Durito.Eval as Eval
 
 
 isKnown :: Expr -> Bool
+-- FIXME look through the body and see if there are any identifiers that are not in KEnv
 isKnown (Lit (Fun formals body env kenv)) = Env.isEmpty env
 isKnown (Lit _) = True
 isKnown _ = False
@@ -89,18 +90,17 @@ residuateBindings globals env ((name, expr):rest) =
 -- extend the known-env with the formals as unknowns
 --
 residuateLit :: KEnv -> KEnv -> Value -> Value
-residuateLit globals env (Fun formals body lexicalEnv knownEnv) =
+residuateLit globals env (Fun formals body valueEnv knownEnv) =
     let
-        installedEnv = (Env.mapMaybe (knownOnly) env)
-        knownOnly (Known v) = Just v
-        knownOnly _ = Nothing
-        lexicalEnv' = Env.union installedEnv lexicalEnv
-        actuals = map (\_ -> Unknown) formals
-        lexicalKnownEnv = Env.map (\v -> Known v) lexicalEnv'
-        env' = Env.extend lexicalKnownEnv formals actuals
-        body' = residuateExpr globals env' body
+        knownEnv' = Env.union env knownEnv
+
+        -- Mark all the formals as "unknown":
+        -- FIXME: actually delete any formals from the lexical-known-env
+        -- in case of shadowing.
+
+        body' = residuateExpr globals knownEnv' body
     in
-        Fun formals body' lexicalEnv' knownEnv
+        Fun formals body' valueEnv knownEnv'
 residuateLit globals env other = other
 
 --

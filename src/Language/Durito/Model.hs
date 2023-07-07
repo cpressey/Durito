@@ -27,7 +27,6 @@ data Value = Fun [Name] Expr VEnv KEnv
 type VEnv = Env.Env Name Value
 
 data KnownStatus = Known Value
-                 | Unknown
     deriving (Show, Ord, Eq)
 
 type KEnv = Env.Env Name KnownStatus
