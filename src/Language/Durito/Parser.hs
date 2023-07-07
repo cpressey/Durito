@@ -28,7 +28,7 @@ litFun = do
     keyword ")"
     keyword "->"
     e <- expr
-    return $ Fun f e Env.empty
+    return $ Fun f e Env.empty Env.empty
 
 litQuote = do
     keyword "<<"

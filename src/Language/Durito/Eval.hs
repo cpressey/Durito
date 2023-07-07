@@ -10,7 +10,7 @@ evalExpr globals env (Apply e es) =
         actuals = map (evalExpr globals env) es
     in
         case evalExpr globals env e of
-            Fun formals body lexicalEnv ->
+            Fun formals body lexicalEnv _ ->
                 evalExpr globals (Env.extend lexicalEnv formals actuals) body
             Builtin Add ->
                 (\[(Int x), (Int y)] -> Int (x + y)) actuals
@@ -35,7 +35,8 @@ evalExpr globals env (Subst bindings e) =
         _          -> error "type mismatch"
 
 -- When we evaluate a literal function, we install in it the current environment.
-evalExpr globals env (Lit (Fun formals body _)) = Fun formals body env
+-- NOTE, this relies on the fact that literal functions have empty lexical envs.
+evalExpr globals env (Lit (Fun formals body _ kenv)) = Fun formals body env kenv
 
 evalExpr globals env (Lit v) = v
 
@@ -48,7 +49,7 @@ evalProgram program actuals =
     in case Env.fetch "main" globals of
         Nothing ->
             error "No main function defined"
-        Just (Fun formals main _) ->
+        Just (Fun formals main _ _) ->
             evalExpr globals (Env.extend Env.empty formals actuals) main
 
 --

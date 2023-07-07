@@ -18,7 +18,7 @@ import qualified Language.Durito.Env as Env
 
 type Name = String
 
-data Value = Fun [Name] Expr VEnv
+data Value = Fun [Name] Expr VEnv KEnv
            | Quote Expr
            | Int Integer
            | Builtin Builtin

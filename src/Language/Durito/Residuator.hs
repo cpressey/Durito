@@ -9,7 +9,7 @@ import qualified Language.Durito.Eval as Eval
 
 
 isKnown :: Expr -> Bool
-isKnown (Lit (Fun formals body env)) = Env.isEmpty env
+isKnown (Lit (Fun formals body env kenv)) = Env.isEmpty env
 isKnown (Lit _) = True
 isKnown _ = False
 
@@ -89,7 +89,7 @@ residuateBindings globals env ((name, expr):rest) =
 -- extend the known-env with the formals as unknowns
 --
 residuateLit :: KEnv -> KEnv -> Value -> Value
-residuateLit globals env (Fun formals body lexicalEnv) =
+residuateLit globals env (Fun formals body lexicalEnv knownEnv) =
     let
         installedEnv = (Env.mapMaybe (knownOnly) env)
         knownOnly (Known v) = Just v
@@ -100,7 +100,7 @@ residuateLit globals env (Fun formals body lexicalEnv) =
         env' = Env.extend lexicalKnownEnv formals actuals
         body' = residuateExpr globals env' body
     in
-        Fun formals body' lexicalEnv'
+        Fun formals body' lexicalEnv' knownEnv
 residuateLit globals env other = other
 
 --
