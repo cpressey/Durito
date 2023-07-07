@@ -38,9 +38,8 @@ isKnown _ (Lit _) = True
 isKnown _ _ = False
 
 --
--- Residuate EXPRESSIONS
+-- Residuate expressions.
 --
-
 residuateExpr :: KEnv -> KEnv -> Expr -> Expr
 
 --
@@ -71,11 +70,6 @@ residuateExpr globals env orig@(Name n) = case Env.fetch n env of
 
 residuateExpr globals env (Lit lit) = Lit $ residuateLit globals env lit
 
-residuateBindings :: KEnv -> KEnv -> [(Name, Expr)] -> [(Name, Expr)]
-residuateBindings globals env [] = []
-residuateBindings globals env ((name, expr):rest) =
-    (name, residuateExpr globals env expr):residuateBindings globals env rest
-
 --
 -- Residuate a literal function.
 -- When we residuate a literal function, we install in it the current environment.
@@ -100,19 +94,12 @@ residuateLit globals env (Fun formals body valueEnv) =
 residuateLit globals env other = other
 
 --
--- Residuate PROGRAMS
+-- Residuate a program.
 --
-
 residuateProgram :: Program -> Program
 residuateProgram program =
     let
-        globals = makeInitialEnv program
+        globals = makeKnown $ Eval.makeInitialEnv program
         f (name, value) = (name, residuateLit globals Env.empty value)
     in
         mapProgram f program
-
---
--- Make initial known-map from globals.
--- All globals are known.
---
-makeInitialEnv p = Env.map (\v -> Known v) $ Eval.makeInitialEnv p
