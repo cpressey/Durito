@@ -34,14 +34,12 @@ evalExpr globals env (Subst bindings e) =
         Quote expr -> Quote (substBindings evaledBindings expr)
         _          -> error "type mismatch"
 
--- When we evaluate a literal function, we install in it the current environment.
--- NOTE, this relies on the fact that literal functions have empty lexical envs.
--- TODO: maybe we should assert that.  (Or fiddle with the data types to obviate it...)
-evalExpr globals env (Lit (Fun formals body _)) = Fun formals body env
+evalExpr globals env (Lit (Fun formals body lexicalEnv)) =
+    if lexicalEnv == Env.empty then (Fun formals body env) else
+        error "assertion failed: function literal already has a lexical env"
 
 evalExpr globals env (Lit v) = v
 
---
 
 evalProgram :: Program -> [Value] -> Value
 evalProgram program actuals =
@@ -53,8 +51,8 @@ evalProgram program actuals =
         Just (Fun formals main _) ->
             evalExpr globals (Env.extend Env.empty formals actuals) main
 
---
 
+makeInitialEnv :: Program -> VEnv
 makeInitialEnv (Program defns) = m defns where
     m [] = builtins
     m ((name, value): rest) = Env.insert name value $ m rest
