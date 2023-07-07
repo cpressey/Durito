@@ -104,6 +104,8 @@ with it.  Namely,
 
 *   arguments to `main()` (otherwise the whole exercise is kind of trivial -- every program can be residuated to a value!)
 *   minor: retain names when residuating (is this hard? -- residuate names first, mark name as residuated?)
+*   allow literal lists to be literals -- this would mean recursing into them during analysis etc.
+*   tests for inserting lists into quoted forms
 
 [Ahead-of-Time `eval`]: https://github.com/cpressey/Ahead-of-Time-eval
 [constant folding]: https://en.wikipedia.org/wiki/Constant_folding
