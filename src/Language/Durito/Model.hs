@@ -38,15 +38,6 @@ data Expr = Apply Expr [Expr]
           | Subst [(Name, Expr)] Expr
     deriving (Show, Ord, Eq)
 
-data Builtin = DuritoAdd
-             | DuritoMul
-             | DuritoEval
-             | DuritoCons
-             | DuritoSubst
-    deriving (Show, Ord, Eq)
-
---
-
 freeVars ::  [Name] -> Expr -> [Name]
 freeVars b (Apply app exprs) =
     (freeVars b app) ++ (freeVarsAll b exprs)
@@ -62,14 +53,24 @@ freeVars b (Subst bindings body) =
 freeVarsAll b exprs =
     foldr (\expr acc -> acc ++ (freeVars b expr)) [] exprs
 
-
---
-
 mapProgram f (Program defns) = Program (map f defns)
 
+mapBindings f = map (\(name, expr) -> (name, f expr))
+
+--
+-- Builtins (putting these in their own module would be circular)
 --
 
-mapBindings f = map (\(name, expr) -> (name, f expr))
+data Builtin = DuritoAdd
+             | DuritoMul
+             | DuritoEval
+             | DuritoCons
+             | DuritoSubst
+    deriving (Show, Ord, Eq)
+
+--
+-- Implementation of "subst"
+--
 
 substBindings :: [(Name, Value)] -> Expr -> Expr
 substBindings [] expr = expr
@@ -88,3 +89,19 @@ substBinding name value (Subst bindings body) =
         Subst bindings' (substBinding name value body)
 substBinding name value other =
     other
+
+evalBuiltin DuritoAdd [(Int x), (Int y)] =
+    Int (x + y)
+evalBuiltin DuritoMul [(Int x), (Int y)] =
+    Int (x * y)
+evalBuiltin DuritoCons [x, y] =
+    Cons x y
+evalBuiltin DuritoSubst [bindings, (Quote expr)] =
+    let
+        pairs = convertBindings bindings
+        convertBindings Nil = []
+        convertBindings (Cons (Cons k v) tail) =
+            ((k, v):convertBindings tail)
+    in
+        -- FIXME!
+        Quote (substBindings [] expr)

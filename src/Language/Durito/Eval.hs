@@ -8,23 +8,19 @@ evalExpr :: VEnv -> VEnv -> Expr -> Value
 evalExpr globals env (Apply e es) =
     let
         actuals = map (evalExpr globals env) es
-        builtinEval [(Quote qe)] = evalExpr globals Env.empty qe
-        builtinEval other = error ("type mismatch: " ++ show other)
     in
         case evalExpr globals env e of
             Fun formals body lexicalEnv ->
                 evalExpr globals (Env.extend lexicalEnv formals actuals) body
-            Builtin DuritoAdd ->
-                (\[(Int x), (Int y)] -> Int (x + y)) actuals
-            Builtin DuritoMul ->
-                (\[(Int x), (Int y)] -> Int (x * y)) actuals
             Builtin DuritoEval ->
-                builtinEval actuals
-            Builtin DuritoCons ->
-                (\[x, y] -> Cons x y) actuals
-            Builtin DuritoSubst ->
-                -- FIXME should not be empty list!
-                (\[bindings, (Quote expr)] -> Quote (substBindings [] expr)) actuals
+                -- Special case, this is here to avoid circularity
+                let
+                    builtinEval [(Quote qe)] = evalExpr globals Env.empty qe
+                    builtinEval other = error ("type mismatch: " ++ show other)
+                in
+                    builtinEval actuals
+            Builtin bi ->
+                (evalBuiltin bi) actuals
 
 evalExpr globals env (Name n) = case Env.fetch n env of
     Just v -> v
