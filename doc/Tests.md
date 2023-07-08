@@ -46,13 +46,22 @@ Creating some lists of values.
     def main = fun() -> cons(1, cons(2, nil))
     ===> [1, 2]
 
+Some sugar for creating lists.
+
     def main = fun() -> [add(1, 4), mul(4, 4)]
     ===> [5, 16]
+
+You can, alas, create improper lists.  But there's no sugar for
+doing that presently, thankfully.
 
     def main = fun() -> cons(cons(<<a>>, <<123>>), nil)
     ===> [[<<a>> | <<123>>]]
 
-    def main = fun() -> [<<a>> => <<123>>, <<b>> => <<456>>]
+A weird bit of sugar where, inside a list,
+a name then a `=>` then an expression desugars into a
+two-element list, with the name quoted.
+
+    def main = fun() -> [a => <<123>>, b => <<456>>]
     ===> [[<<a>>, <<123>>], [<<b>>, <<456>>]]
 
 ### Evaluation of `eval`
@@ -90,7 +99,7 @@ manipulating quoted forms.  Alas, at present, it does not.  It provides
 only a `subst` builtin, which substitutes names in a quoted form with
 values.  However, this suffices for a lot of cases.
 
-    def yarf = fun() -> subst([<<a>> => <<123>>], <<add(a, 99)>>)
+    def yarf = fun() -> subst([a => <<123>>], <<add(a, 99)>>)
     def main = fun() -> eval(yarf())
     ===> 222
 
@@ -100,7 +109,7 @@ Compare this to the "undefined name" example above.
     def double = fun(n) -> mul(2, n)
     def quoted = fun() -> <<double(add(w, h))>>
     def perim = fun(w, h) ->
-        eval(subst([<<w>> => w, <<h>> => h], quoted()))
+        eval(subst([w => w, h => h], quoted()))
     def main = fun() -> perim(12,34)
     ===> 92
 
@@ -210,7 +219,7 @@ Partial residuation inside `eval`.
 Partial residuation inside `subst` (both body and bindings).
 
     def id = fun(x) -> x
-    def main = fun(y) -> subst([<<y>> => add(y, id(2))], <<add(y, id(2))>>)
+    def main = fun(y) -> subst([y => add(y, id(2))], <<add(y, id(2))>>)
     ===> def id = fun(x) -> x
     ===> def main = fun(y) -> subst(cons(cons(<<y>>, cons(add(y, 2), [])), []), <<add(y, id(2))>>)
 
