@@ -9,7 +9,6 @@ renderBuiltin DuritoAdd = "add"
 renderBuiltin DuritoMul = "mul"
 renderBuiltin DuritoEval = "eval"
 renderBuiltin DuritoCons = "cons"
-renderBuiltin DuritoSubst = "subst"
 
 --
 -- Implementation of "subst"
@@ -35,22 +34,10 @@ evalBuiltin _ DuritoMul [(Int x), (Int y)] =
 evalBuiltin _ DuritoCons [x, y] =
     Cons x y
 evalBuiltin evaluator DuritoEval [(Quote qe venv)] =
-    -- TODO: injecy venv into evaluator when evaluating
-    evaluator qe
-evalBuiltin _ DuritoSubst [bindings, (Quote expr venv)] =
-    -- NOTE: venv is not handled well here
-    let
-        pairs = convertBindings bindings
-        convertBindings Nil = []
-        convertBindings (Cons (Cons (Quote (Name n) _) (Cons (Quote (Lit v) _) Nil)) tail) =
-            ((n, v):convertBindings tail)
-        convertBindings (Cons (Cons (Quote (Name n) _) (Cons v Nil)) tail) =
-            ((n, v):convertBindings tail)
-    in
-        Quote (substBindings pairs expr) venv
+    evaluator venv qe
 evalBuiltin _ other args =
     error $ "type mismatch: " ++ (show other) ++ " " ++ (show args)
 
 builtinsEnv = Env.extend Env.empty
-    ["mul", "add", "eval", "cons", "nil", "subst"]
-    [Builtin DuritoMul, Builtin DuritoAdd, Builtin DuritoEval, Builtin DuritoCons, Nil, Builtin DuritoSubst]
+    ["mul", "add", "eval", "cons", "nil"]
+    [Builtin DuritoMul, Builtin DuritoAdd, Builtin DuritoEval, Builtin DuritoCons, Nil]

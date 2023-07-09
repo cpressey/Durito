@@ -1,5 +1,7 @@
 module Language.Durito.Eval where
 
+--import Debug.Trace
+
 import Language.Durito.Model
 import Language.Durito.Builtins
 import qualified Language.Durito.Env as Env
@@ -9,7 +11,9 @@ evalExpr :: VEnv -> VEnv -> Expr -> Value
 evalExpr globals env (Apply e es) =
     let
         actuals = map (evalExpr globals env) es
-        evaluator = evalExpr globals Env.empty
+        evaluator venv expr =
+            --traceShow (venv,expr)
+                evalExpr globals venv expr
     in
         case evalExpr globals env e of
             Fun formals body lexicalEnv ->
@@ -26,6 +30,10 @@ evalExpr globals env (Name n) = case Env.fetch n env of
 evalExpr globals env (Lit (Fun formals body lexicalEnv)) =
     if lexicalEnv == Env.empty then (Fun formals body env) else
         error "assertion failed: function literal already has a lexical env"
+
+evalExpr globals env (Lit (Quote expr lexicalEnv)) =
+    if lexicalEnv == Env.empty then (Quote expr env) else
+        error "assertion failed: quoted form literal already has a lexical env"
 
 evalExpr globals env (Lit v) = v
 

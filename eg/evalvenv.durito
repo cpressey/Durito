@@ -1,0 +1,2 @@
+def yarf = fun(a) -> <<add(a, 99)>>
+def main = fun() -> eval(yarf(123))

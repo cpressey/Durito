@@ -90,27 +90,28 @@ or formal arguments, will not be bound.
     def main = fun() -> perim(12,34)
     ???> undefined name
 
-There is, at present, no way to provide an `eval` with an environment
-other than described above.  To introduce specific bindings, the idiom
-in Durito is to perform syntactic replacement on the quoted form
-before calling `eval` on it.  To this end, Durito could (and arguably
-should) provide a sophisticated set of tools for constructing and
-manipulating quoted forms.  Alas, at present, it does not.  It provides
-only a `subst` builtin, which substitutes names in a quoted form with
-values.  However, this suffices for a lot of cases.
+However, whenever a quoted form is created from a quoted
+expression in the program, the current environment in effect
+is closed over (just as when creating a function value).
 
-    def yarf = fun() -> subst([a => <<123>>], <<add(a, 99)>>)
-    def main = fun() -> eval(yarf())
+This environment is carried along with the quoted form
+value (just as the lexical environment of a function value)
+and, critically, it is consulted during evaluation.
+
+    def yarf = fun(a) -> <<add(a, 99)>>
+    def main = fun() -> eval(yarf(123))
     ===> 222
 
-Using this, we may introduce local variables explicitly during `eval`.
-Compare this to the "undefined name" example above.
+Using this, we may introduce local variables during `eval`,
+but only where they are not overridden (shadowed) by local
+variables that were set up when creating the quoted form
+being `eval`ed.
 
     def double = fun(n) -> mul(2, n)
-    def quoted = fun() -> <<double(add(w, h))>>
+    def quoted = fun(w, h) -> <<double(add(w, h))>>
     def perim = fun(w, h) ->
-        eval(subst([w => w, h => h], quoted()))
-    def main = fun() -> perim(12,34)
+        eval(quoted(double(w), double(h)))
+    def main = fun() -> perim(6,17)
     ===> 92
 
 Residuation
