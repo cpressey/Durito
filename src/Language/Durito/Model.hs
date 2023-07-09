@@ -11,7 +11,7 @@ import Language.Durito.BuiltinType
 type Name = String
 
 data Value = Fun [Name] Expr VEnv
-           | Quote Expr
+           | Quote Expr VEnv
            | Int Integer
            | Cons Value Value     -- shall not appear in Lits - use `cons` builtin
            | Nil

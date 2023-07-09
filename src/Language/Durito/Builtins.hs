@@ -34,18 +34,20 @@ evalBuiltin _ DuritoMul [(Int x), (Int y)] =
     Int (x * y)
 evalBuiltin _ DuritoCons [x, y] =
     Cons x y
-evalBuiltin evaluator DuritoEval [(Quote qe)] =
+evalBuiltin evaluator DuritoEval [(Quote qe venv)] =
+    -- TODO: injecy venv into evaluator when evaluating
     evaluator qe
-evalBuiltin _ DuritoSubst [bindings, (Quote expr)] =
+evalBuiltin _ DuritoSubst [bindings, (Quote expr venv)] =
+    -- NOTE: venv is not handled well here
     let
         pairs = convertBindings bindings
         convertBindings Nil = []
-        convertBindings (Cons (Cons (Quote (Name n)) (Cons (Quote (Lit v)) Nil)) tail) =
+        convertBindings (Cons (Cons (Quote (Name n) _) (Cons (Quote (Lit v) _) Nil)) tail) =
             ((n, v):convertBindings tail)
-        convertBindings (Cons (Cons (Quote (Name n)) (Cons v Nil)) tail) =
+        convertBindings (Cons (Cons (Quote (Name n) _) (Cons v Nil)) tail) =
             ((n, v):convertBindings tail)
     in
-        Quote (substBindings pairs expr)
+        Quote (substBindings pairs expr) venv
 evalBuiltin _ other args =
     error $ "type mismatch: " ++ (show other) ++ " " ++ (show args)
 
