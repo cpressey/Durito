@@ -127,11 +127,15 @@ or formal arguments, will not be bound.
 
 However, whenever a quoted form is created from a quoted
 expression in the program, the current environment in effect
-is closed over (just as when creating a function value).
+is closed over by it, by wrapping the quoted form in a `let` block.
+See the [Quoted forms](#quoted-forms) section above for details.
 
-This environment is carried along with the quoted form
-value (just as the lexical environment of a function value)
-and, critically, it is consulted during evaluation.
+    def yarf = fun(a) -> <<add(a, 99)>>
+    def main = fun() -> yarf(123)
+    ===> <<let a = 123 in add(a, 99)>>
+
+The effect is for the enclosing lexical bindings to be in place
+when the quoted form is evaluated.
 
     def yarf = fun(a) -> <<add(a, 99)>>
     def main = fun() -> eval(yarf(123))
@@ -148,6 +152,11 @@ being `eval`ed.
         eval(quoted(double(w), double(h)))
     def main = fun() -> perim(6,17)
     ===> 92
+
+If we wanted to remove even these bindings, we could do so
+simply by manipulating the quoted form and removing the
+enclosing `let` block.  Durito currently provides no facilities
+to do this, but it easily could.  (Watch this space, I guess.)
 
 Residuation
 -----------
