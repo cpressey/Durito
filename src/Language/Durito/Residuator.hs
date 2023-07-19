@@ -60,6 +60,13 @@ residuateExpr globals env orig@(Apply e es) =
             newExpr
 
 --
+-- Residuate a `let` binding.
+--
+residuateExpr globals env (Let [] expr) = residuateExpr globals env expr
+residuateExpr globals env (Let ((n, e):bindings) expr) =
+    error "not yet implemented"
+
+--
 -- Residuate a usage of a name.
 --
 residuateExpr globals env orig@(Name n) = case Env.fetch n env of

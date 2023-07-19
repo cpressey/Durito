@@ -17,6 +17,9 @@ renderExpr (Apply e es) =
         renderApplier (Name n) = n
         renderApplier (Lit v@(Builtin _)) = renderValue v
         renderApplier other = "(" ++ (renderExpr other) ++ ")"
+renderExpr (Let [] expr) = renderExpr expr
+renderExpr (Let ((n,e):bindings) expr) =
+    "let " ++ n ++ " = " ++ (renderExpr e) ++ " in " ++ (renderExpr $ Let bindings expr)
 renderExpr (Name n) = n
 renderExpr (Lit v) = renderValue v
 

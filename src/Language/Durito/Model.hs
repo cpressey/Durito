@@ -34,6 +34,7 @@ data Program = Program [(Name, Value)]
     deriving (Show, Ord, Eq)
 
 data Expr = Apply Expr [Expr]
+          | Let [(Name, Expr)] Expr
           | Name Name
           | Lit Value
     deriving (Show, Ord, Eq)
@@ -41,6 +42,10 @@ data Expr = Apply Expr [Expr]
 freeVars ::  [Name] -> Expr -> [Name]
 freeVars b (Apply app exprs) =
     (freeVars b app) ++ (freeVarsAll b exprs)
+freeVars b (Let [] expr) =
+    freeVars b expr
+freeVars b (Let ((n, e):bindings) expr) =
+    (freeVars b e) ++ (freeVars (b ++ [n]) (Let bindings expr))
 freeVars b (Name n) =
     if n `elem` b then [] else [n]
 freeVars b (Lit (Fun formals body _)) =

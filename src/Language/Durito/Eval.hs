@@ -21,6 +21,14 @@ evalExpr globals env (Apply e es) =
             Builtin bi ->
                 (evalBuiltin evaluator bi) actuals
 
+evalExpr globals env (Let [] expr) = evalExpr globals env expr
+evalExpr globals env (Let ((n, e):bindings) expr) =
+    let
+        v = evalExpr globals env e
+        env' = Env.extend env [n] [v]
+    in
+        evalExpr globals env' $ Let bindings expr
+
 evalExpr globals env (Name n) = case Env.fetch n env of
     Just v -> v
     Nothing -> case Env.fetch n globals of

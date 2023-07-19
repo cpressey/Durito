@@ -44,7 +44,7 @@ litInt = do
     fspaces
     return $ Int num
 
-expr = (try exprList) <|> (try exprLiteral) <|> (try exprApply) <|> exprName
+expr = (try exprList) <|> (try exprLet) <|> (try exprLiteral) <|> (try exprApply) <|> exprName
 
 exprList = do
     keyword "["
@@ -63,6 +63,15 @@ exprMaybePair = do
             return e1
         (Name n, Just e2) ->
             return $ Apply (Name "cons") [Lit $ Quote e1 Env.empty, Apply (Name "cons") [e2, (Name "nil")]]
+
+exprLet = do
+    keyword "let"
+    n <- name
+    keyword "="
+    e <- expr
+    keyword "in"
+    body <- expr
+    return $ Let [(n, e)] body
 
 exprLiteral = do
     v <- literal
