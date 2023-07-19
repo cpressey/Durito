@@ -25,17 +25,23 @@ makeKnown venv = Env.map (\v -> Known v) venv
 extractKnown :: KEnv -> VEnv
 extractKnown kenv = Env.map (\(Known v) -> v) kenv
 
-isKnown :: KEnv -> Expr -> Bool
-isKnown globals expr@(Lit (Fun formals body _)) =
+
+obtainKnown :: KEnv -> Expr -> Maybe Value
+obtainKnown kenv expr@(Lit value@(Fun formals body _)) =
     -- A function value is known if it has no free variables.
     -- (Even better would be: if all its free variables are known...)
     let
-        b = Env.keys globals
+        b = Env.keys kenv
         fv = freeVars b expr
     in
-        fv == []
-isKnown _ (Lit _) = True
-isKnown _ _ = False
+        if fv == [] then Just value else Nothing
+obtainKnown _ (Lit value) = Just value
+obtainKnown _ _ = Nothing
+
+isKnown :: KEnv -> Expr -> Bool
+isKnown kenv expr = case obtainKnown kenv expr of
+    Just _  -> True
+    Nothing -> False
 
 --
 -- Residuate expressions.
@@ -66,13 +72,9 @@ residuateExpr globals env (Let [] expr) = residuateExpr globals env expr
 residuateExpr globals env (Let ((n, e):bindings) expr) =
     let
         residuatedE = residuateExpr globals env e
-        eKnown = isKnown globals residuatedE               -- TODO: check not just globals here?
-        env' =  if
-                    eKnown
-                then
-                    Env.insert n (Known $ Int 999) env     -- FIXME
-                else
-                    env
+        env' = case obtainKnown globals residuatedE of    -- TODO: check not just globals here?
+            Just value -> Env.insert n (Known value) env
+            Nothing    -> env
     in
         residuateExpr globals env' (Let bindings expr)
 
