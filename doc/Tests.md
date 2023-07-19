@@ -30,6 +30,11 @@ The language does use lexical scope.
     def aaaa = fun(x) -> (make(x))(99)
     ===> 100
 
+There are `let` blocks.
+
+    def main = fun() -> let r = 1 in add(r, r)
+    ===> 2
+
 A program may evaluate to a function value.
 
     def main = fun() -> fun(r) -> add(1, r)
@@ -40,6 +45,36 @@ Functions can be passed to functions.
     def yark = fun(x, double) -> double(x)
     def main = fun() -> yark(53, fun(z) -> mul(z, 2))
     ===> 106
+
+### Quoted forms
+
+You can use the `<<...>>` construct to create a quoted form.
+This is a kind of value that represents an expression in a
+Durito program text.
+
+    def main = fun() -> <<add(2, 3)>>
+    ===> <<add(2, 3)>>
+
+Name bindings aren't expanded in a quoted form.
+
+    def main = fun() -> <<fun() -> let r = 2 in add(r, r)>>
+    ===> <<fun() -> let r = 2 in add(r, r)>>
+
+However, local name bindings are _captured_ when making a
+quoted form.  There is nothing special internally representing
+these captured bindings; rather, they are represented by
+adding a `let` around the quoted form.
+
+    def main = fun() -> let r = 2 in <<fun() -> add(r, r)>>
+    ===> <<let r = 2 in fun() -> add(r, r)>>
+
+This applied to formal parameter capture too.
+
+    def main = fun() -> aaaa(5)
+    def aaaa = fun(z) -> <<z>>
+    ===> <<let z = 5 in z>>
+
+### Lists
 
 Creating some lists of values.
 
@@ -144,7 +179,7 @@ Known names residuate to the value they are known to be bound to.
     ===> def num = 123
     ===> def main = fun() -> 123
 
-Applications of builting residuate by evaluation when all of their arguments are known.
+Applications of builtins residuate by evaluation when all of their arguments are known.
 
     def main = fun() -> add(123, 7)
     ===> def main = fun() -> 130
