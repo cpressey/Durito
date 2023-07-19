@@ -39,6 +39,9 @@ evalExpr globals env (Lit (Fun formals body lexicalEnv)) =
     if lexicalEnv == Env.empty then (Fun formals body env) else
         error "assertion failed: function literal already has a lexical env"
 
+evalExpr globals env (Lit (Quote expr)) =
+    Quote $ Let (toLiteralBindings env) expr
+
 evalExpr globals env (Lit v) = v
 
 

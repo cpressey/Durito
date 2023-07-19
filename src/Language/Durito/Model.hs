@@ -60,12 +60,11 @@ freeVarsAll b exprs =
 -- Reification of Values to Exprs.
 --
 
+toLiteralBindings env =
+    map (\(k,v) -> (k, toLiteral v)) (Env.toList env)
+
 toLiteral (Fun formals body lexicalEnv) =
-    let
-        bindings :: [(Name, Expr)]
-        bindings = map (\(k,v) -> (k, toLiteral v)) (Env.toList lexicalEnv)
-    in
-        Let bindings (Lit $ Fun formals body Env.empty)
+    Let (toLiteralBindings lexicalEnv) (Lit $ Fun formals body Env.empty)
 toLiteral (Cons a b) =
     Apply (Name "cons") [(toLiteral a), (toLiteral b)]
 toLiteral other = Lit $ other
