@@ -49,8 +49,8 @@ residuateExpr globals env orig@(Apply e es) =
     let
         residuatedE = residuateExpr globals env e
         residuatedArgs = map (residuateExpr globals env) es
-        eKnown = isKnown globals residuatedE
-        argsKnown = all (isKnown globals) residuatedArgs
+        eKnown = isKnown globals residuatedE               -- TODO: check not just globals here?
+        argsKnown = all (isKnown globals) residuatedArgs   -- TODO: check not just globals here?
         newExpr = Apply residuatedE residuatedArgs
     in case (eKnown, argsKnown) of
         (True, True) ->
@@ -64,7 +64,17 @@ residuateExpr globals env orig@(Apply e es) =
 --
 residuateExpr globals env (Let [] expr) = residuateExpr globals env expr
 residuateExpr globals env (Let ((n, e):bindings) expr) =
-    error "not yet implemented"
+    let
+        residuatedE = residuateExpr globals env e
+        eKnown = isKnown globals residuatedE               -- TODO: check not just globals here?
+        env' =  if
+                    eKnown
+                then
+                    Env.insert n (Known $ Int 999) env     -- FIXME
+                else
+                    env
+    in
+        residuateExpr globals env' (Let bindings expr)
 
 --
 -- Residuate a usage of a name.

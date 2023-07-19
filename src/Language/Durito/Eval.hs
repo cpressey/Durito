@@ -1,7 +1,5 @@
 module Language.Durito.Eval where
 
---import Debug.Trace
-
 import Language.Durito.Model
 import Language.Durito.Builtins
 import qualified Language.Durito.Env as Env
@@ -12,8 +10,7 @@ evalExpr globals env (Apply e es) =
     let
         actuals = map (evalExpr globals env) es
         evaluator expr =
-            --traceShow (venv,expr)
-                evalExpr globals Env.empty expr
+            evalExpr globals Env.empty expr
     in
         case evalExpr globals env e of
             Fun formals body lexicalEnv ->
