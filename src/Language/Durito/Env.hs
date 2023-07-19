@@ -34,3 +34,6 @@ union env1 env2 = Env { table=Map.union (table env1) (table env2) }
 
 keys :: Env tk tv -> [tk]
 keys env = Prelude.map (fst) (Map.toList (table env))
+
+toList :: Env tk tv -> [(tk, tv)]
+toList env = Map.toList $ table env

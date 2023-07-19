@@ -11,7 +11,7 @@ import Language.Durito.BuiltinType
 type Name = String
 
 data Value = Fun [Name] Expr VEnv
-           | Quote Expr VEnv
+           | Quote Expr
            | Int Integer
            | Cons Value Value     -- shall not appear in Lits - use `cons` builtin
            | Nil
@@ -55,6 +55,24 @@ freeVars b (Lit _) =
 
 freeVarsAll b exprs =
     foldr (\expr acc -> acc ++ (freeVars b expr)) [] exprs
+
+--
+-- Reification of Values to Exprs.
+--
+
+toLiteral (Fun formals body lexicalEnv) =
+    let
+        bindings :: [(Name, Expr)]
+        bindings = map (\(k,v) -> (k, toLiteral v)) (Env.toList lexicalEnv)
+    in
+        Let bindings (Lit $ Fun formals body Env.empty)
+toLiteral (Cons a b) =
+    Apply (Name "cons") [(toLiteral a), (toLiteral b)]
+toLiteral other = Lit $ other
+
+--
+-- Utils.
+--
 
 mapProgram f (Program defns) = Program (map f defns)
 

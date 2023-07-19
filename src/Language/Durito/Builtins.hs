@@ -33,8 +33,8 @@ evalBuiltin _ DuritoMul [(Int x), (Int y)] =
     Int (x * y)
 evalBuiltin _ DuritoCons [x, y] =
     Cons x y
-evalBuiltin evaluator DuritoEval [(Quote qe venv)] =
-    evaluator venv qe
+evalBuiltin evaluator DuritoEval [(Quote qe)] =
+    evaluator qe
 evalBuiltin _ other args =
     error $ "type mismatch: " ++ (show other) ++ " " ++ (show args)
 

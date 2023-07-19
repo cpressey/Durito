@@ -28,7 +28,7 @@ renderExprList sep [e] = renderExpr e
 renderExprList sep (e:es) = (renderExpr e) ++ sep ++ (renderExprList sep es)
 
 renderValue (Fun args body _) = "fun(" ++ (renderExprList ", " (map (\n -> Name n) args)) ++ ") -> " ++ renderExpr body
-renderValue (Quote e _) = "<<" ++ (renderExpr e) ++ ">>"
+renderValue (Quote e) = "<<" ++ (renderExpr e) ++ ">>"
 renderValue (Int i) = (show i)
 renderValue (Cons h t) = "[" ++ (renderValue h) ++ (renderListTail t)
 renderValue (Nil) = "[]"

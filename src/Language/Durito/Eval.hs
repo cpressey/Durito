@@ -11,9 +11,9 @@ evalExpr :: VEnv -> VEnv -> Expr -> Value
 evalExpr globals env (Apply e es) =
     let
         actuals = map (evalExpr globals env) es
-        evaluator venv expr =
+        evaluator expr =
             --traceShow (venv,expr)
-                evalExpr globals venv expr
+                evalExpr globals Env.empty expr
     in
         case evalExpr globals env e of
             Fun formals body lexicalEnv ->
@@ -38,10 +38,6 @@ evalExpr globals env (Name n) = case Env.fetch n env of
 evalExpr globals env (Lit (Fun formals body lexicalEnv)) =
     if lexicalEnv == Env.empty then (Fun formals body env) else
         error "assertion failed: function literal already has a lexical env"
-
-evalExpr globals env (Lit (Quote expr lexicalEnv)) =
-    if lexicalEnv == Env.empty then (Quote expr env) else
-        error "assertion failed: quoted form literal already has a lexical env"
 
 evalExpr globals env (Lit v) = v
 

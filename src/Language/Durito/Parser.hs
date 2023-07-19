@@ -35,7 +35,7 @@ litQuote = do
     e <- expr
     keyword ">>"
     fspaces
-    return $ Quote e Env.empty
+    return $ Quote e
 
 litInt = do
     c <- digit
@@ -62,7 +62,7 @@ exprMaybePair = do
         (_, Nothing) ->
             return e1
         (Name n, Just e2) ->
-            return $ Apply (Name "cons") [Lit $ Quote e1 Env.empty, Apply (Name "cons") [e2, (Name "nil")]]
+            return $ Apply (Name "cons") [Lit $ Quote e1, Apply (Name "cons") [e2, (Name "nil")]]
 
 exprLet = do
     keyword "let"
