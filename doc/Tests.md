@@ -30,11 +30,6 @@ The language does use lexical scope.
     def aaaa = fun(x) -> (make(x))(99)
     ===> 100
 
-There are `let` blocks.
-
-    def main = fun() -> let r = 1 in add(r, r)
-    ===> 2
-
 A program may evaluate to a function value.
 
     def main = fun() -> fun(r) -> add(1, r)
@@ -45,6 +40,18 @@ Functions can be passed to functions.
     def yark = fun(x, double) -> double(x)
     def main = fun() -> yark(53, fun(z) -> mul(z, 2))
     ===> 106
+
+### `let`
+
+There are `let` blocks.
+
+    def main = fun() -> let r = 1 in add(r, r)
+    ===> 2
+
+These work like `let*` in Scheme: they can see previous bindings.
+
+    def main = fun() -> let r = 7, s = mul(r, 2) in add(r, s)
+    ===> 21
 
 ### Quoted forms
 
@@ -68,11 +75,11 @@ adding a `let` around the quoted form.
     def main = fun() -> let r = 2 in <<fun() -> add(r, r)>>
     ===> <<let r = 2 in fun() -> add(r, r)>>
 
-This applied to formal parameter capture too.
+This applies to formal parameter capture too.
 
-    def main = fun() -> aaaa(5)
-    def aaaa = fun(z) -> <<z>>
-    ===> <<let z = 5 in z>>
+    def main = fun() -> aaaa(5, 6)
+    def aaaa = fun(x, y) -> <<add(x, y)>>
+    ===> <<let x = 5, y = 6 in add(x, y)>>
 
 ### Lists
 

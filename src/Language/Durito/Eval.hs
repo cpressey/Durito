@@ -37,7 +37,9 @@ evalExpr globals env (Lit (Fun formals body lexicalEnv)) =
         error "assertion failed: function literal already has a lexical env"
 
 evalExpr globals env (Lit (Quote expr)) =
-    Quote $ Let (toLiteralBindings env) expr
+    Quote $ case toLiteralBindings env of
+        [] -> expr
+        bindings -> Let bindings expr
 
 evalExpr globals env (Lit v) = v
 

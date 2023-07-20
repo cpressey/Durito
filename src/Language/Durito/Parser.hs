@@ -66,12 +66,16 @@ exprMaybePair = do
 
 exprLet = do
     keyword "let"
+    bindings <- sepBy (binding) (keyword ",")
+    keyword "in"
+    body <- expr
+    return $ Let bindings body
+
+binding = do
     n <- name
     keyword "="
     e <- expr
-    keyword "in"
-    body <- expr
-    return $ Let [(n, e)] body
+    return (n, e)
 
 exprLiteral = do
     v <- literal
