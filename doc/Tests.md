@@ -290,13 +290,6 @@ Partial residuation inside `eval`.
     ===> def id = fun(x) -> x
     ===> def main = fun(y) -> eval(add(y, <<add(2, 3)>>))
 
-Partial residuation inside `subst` (both body and bindings).
-
-    def id = fun(x) -> x
-    def main = fun(y) -> subst([y => add(y, id(2))], <<add(y, id(2))>>)
-    ===> def id = fun(x) -> x
-    ===> def main = fun(y) -> subst(cons(cons(<<y>>, cons(add(y, 2), [])), []), <<add(y, id(2))>>)
-
 We (currently) residuate functions out of existence *only* if they
 close over no variables.
 
@@ -313,3 +306,22 @@ and if so, it is considered unknown.
     ===> def main = fun(y) -> (fun(x) -> add(mul(x, 2), y))(5)
 
 TODO: test shadowing edge case
+
+### Residuation of `let` bindings
+
+Bindings of `let` can be residuated away.
+
+    def main = fun(y) -> let x = 4 in add(x, y)
+    ===> def main = fun(y) -> add(4, y)
+
+Successive bindings of `let` can be residuated away.
+
+    def main = fun(a) -> let x = 4, y = 8, z = add(x, y) in add(a, z)
+    ===> def main = fun(a) -> add(a, 12)
+
+Partial residuation inside `let` bindings and body.
+
+    def id = fun(x) -> x
+    def main = fun(y) -> let r = add(y, id(2)) in add(r, id(2))
+    ===> def id = fun(x) -> x
+    ===> def main = fun(y) -> let r = add(y, 2) in add(r, 2)

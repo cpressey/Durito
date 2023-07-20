@@ -72,11 +72,22 @@ residuateExpr globals env (Let [] expr) = residuateExpr globals env expr
 residuateExpr globals env (Let ((n, e):bindings) expr) =
     let
         residuatedE = residuateExpr globals env e
-        env' = case obtainKnown globals residuatedE of    -- TODO: check not just globals here?
-            Just value -> Env.insert n (Known value) env
-            Nothing    -> env
     in
-        residuateExpr globals env' (Let bindings expr)
+        case obtainKnown globals residuatedE of    -- TODO: check not just globals here?
+            Just value ->
+                -- We residuated the binding to a known value.
+                -- Update the environment and continue without the binding.
+                let
+                    env' = Env.insert n (Known value) env
+                in
+                    residuateExpr globals env' (Let bindings expr)
+            Nothing ->
+                -- We couldn't residuate the binding to a known value.
+                -- Retain the residuated binding and continue to descend.
+                let
+                    expr' = residuateExpr globals env (Let bindings expr)
+                in
+                    Let [(n, residuatedE)] expr'
 
 --
 -- Residuate a usage of a name.
