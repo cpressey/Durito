@@ -58,7 +58,8 @@ terminate at runtime.
 #### Hygiene
 
 Functions that are evaluated ahead of time are morally equivalent
-to macros.
+to macros.  Or rather, macros are functions _from syntax to syntax_,
+that are evaluated ahead of time.
 
 Hygiene is violated when the identifiers in a macro (or in an application
 of a macro) are bound to values that the macro writer (or macro user)
@@ -66,41 +67,25 @@ didn't expect them to be bound to.
 
 Durito's `eval` always evaluates the given quoted program form in
 an environment that contains only builtins and globals (top-level
-identifiers).  So, for example,
+identifiers).  _However_, when _creating_ a quoted form in the usual
+way, it _includes_ any local bindings as a `let` block inside the
+quoted form.  So when `eval`ing a quoted form, the local bindings
+are in effect, which is what one usually expects.
 
-    def double = fun(n) -> mul(2, n)
-    def main = fun() -> eval(<<double(mul(2, 2))>>)
-
-evaluates to 8, while
-
-    def double = fun(n) -> eval(<<mul(2, n)>>)
-    def main = fun() -> double(mul(2,2))
-
-will produce a runtime error when `eval` attempts to evaluate the
-symbol `n`, which has no binding.
-
-To accomplish in Durito what the second version of `double` is
-presumably intending to accomplish -- that is, to subvert the
-base hygiene expectations and allow other bindings during `eval` --
+If one wished to _change_ this, however, to subvert the
+base hygiene expectations, to either have those local bindings
+be unavailable, or to inject other bindings entirely, during `eval` --
 the idiomatic approach is to _modify the quoted form_ before
-passing it to `eval`.  To this end, Durito provides a builtin
-called `subst`, which substitutes parts of a quoted form.  In this
-case, we can use it to replace the quoted occurrences of `n`
-with the value of `n` in the evaluating environment:
+passing it to `eval`.
 
-    def double = fun(n) ->
-        eval(
-            subst(
-                [[<<n>>, n]],
-                <<mul(2, n)>>
-            )
-        )
-    def main = fun() -> double(mul(2,2))
+To this end, Durito should eventually provide some tools for
+manipulating quoted forms.  It doesn't, at present, because at
+present it is still a proof-of-concept.
 
-#### Substitution
+#### Expressed and Denoted Values
 
-A note about substitution (that wasn't apparent to me when I started
-out on this): this method of substitution really works best when the
+A note about modifying quoted forms that wasn't apparent to me when
+I started out on this: it really works best when the
 set of _denoted values_ of the language closely matches the set of
 _expressed values_.  That is, it's best if, for every kind of value
 the program works with at runtime, there is a corresponding
@@ -113,28 +98,19 @@ The literal function syntax doesn't include the enclosing environment
 that the closure has captured (as it is inferred from the execution
 context when the function value is created at runtime.)
 
-So trying to place a closure value back into a quoted form
-with `subst` raises the question of how to handle it.
-
-There are two reasonable options: error out, i.e. only allow denoted
-values which do have exactly corresponding expressed values to be
-put into quoted forms; or concoct an expression which will, when
-evaluated, evaluate to the denoted value.  In the case of function
-closures, this might involve generating a `let` block around the
-function literal (or something similar).
-
-How Durito will handle this is still work-in-progress.
+The general strategy is to concoct an expression which will, when
+evaluated, evaluate to the denoted value.  So, when placing a closure
+into a quoted form, we do this: we generate a `let` block around the
+function literal that provides the captured bindings of the closure.
 
 ### TODO
 
 *   arguments to `main()` (otherwise the whole exercise is kind of trivial -- every program can be residuated to a value!)
-*   tests for inserting lists, function closures, etc. into quoted forms
-*   `@macro` sugar that looks like Julia macros, arguments are automatically quoted
-    (and locals are automatically subst'ed in?)
+*   `@macro` sugar that looks like Julia macros, where arguments are automatically quoted
 *   "ancillary syntax" that doesn't mean anything by itself but can be used for macros
     (e.g. `with a = e1, b = e2 in e3` -- as a generic structure that evaluates to a
     pair of a list of (name, expr) pairs and an expression -- to be used in `let` or
-    `subst` or other macros)
+    other macros)
 
 [Ahead-of-Time `eval`]: https://github.com/cpressey/Ahead-of-Time-eval
 [constant folding]: https://en.wikipedia.org/wiki/Constant_folding

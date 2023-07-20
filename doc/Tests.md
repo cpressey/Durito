@@ -41,6 +41,31 @@ Functions can be passed to functions.
     def main = fun() -> yark(53, fun(z) -> mul(z, 2))
     ===> 106
 
+### Lists
+
+Creating some lists of values.
+
+    def main = fun() -> cons(1, cons(2, nil))
+    ===> [1, 2]
+
+Some sugar for creating lists.
+
+    def main = fun() -> [add(1, 4), mul(4, 4)]
+    ===> [5, 16]
+
+You can, alas, create improper lists.  But there's no sugar for
+doing that presently, thankfully.
+
+    def main = fun() -> cons(cons(<<a>>, <<123>>), nil)
+    ===> [[<<a>> | <<123>>]]
+
+A weird bit of sugar where, inside a list,
+a name then a `=>` then an expression desugars into a
+two-element list, with the name quoted.
+
+    def main = fun() -> [a => <<123>>, b => <<456>>]
+    ===> [[<<a>>, <<123>>], [<<b>>, <<456>>]]
+
 ### `let`
 
 There are `let` blocks.
@@ -81,30 +106,27 @@ This applies to formal parameter capture too.
     def aaaa = fun(x, y) -> <<add(x, y)>>
     ===> <<let x = 5, y = 6 in add(x, y)>>
 
-### Lists
+In order for this to work coherently, we need to make sure that
+every denoted value can be denoted by some expression, and we need
+to be able to generate that expression for any given denoted value.
 
-Creating some lists of values.
+So, for example, lists are denoted values, but they aren't
+directly expressed as literals.  So we must express them (as
+a series of applications of builtins that create them) when
+putting them in a quoted form:
 
-    def main = fun() -> cons(1, cons(2, nil))
-    ===> [1, 2]
+    def main = fun() -> aaaa([1, 2, 3])
+    def aaaa = fun(xs) -> <<add(xs, 1)>>
+    ===> <<let xs = cons(1, cons(2, cons(3, []))) in add(xs, 1)>>
 
-Some sugar for creating lists.
+This is true too for function values, and it is true even when
+those functions have closed over local names.  This closure is
+expressed as a `let` block around the function value.
 
-    def main = fun() -> [add(1, 4), mul(4, 4)]
-    ===> [5, 16]
-
-You can, alas, create improper lists.  But there's no sugar for
-doing that presently, thankfully.
-
-    def main = fun() -> cons(cons(<<a>>, <<123>>), nil)
-    ===> [[<<a>> | <<123>>]]
-
-A weird bit of sugar where, inside a list,
-a name then a `=>` then an expression desugars into a
-two-element list, with the name quoted.
-
-    def main = fun() -> [a => <<123>>, b => <<456>>]
-    ===> [[<<a>>, <<123>>], [<<b>>, <<456>>]]
+    def main = fun() -> aaaa(73)
+    def aaaa = fun(g) -> bbbb(fun(x) -> add(g, x))
+    def bbbb = fun(f) -> <<add(f, 1)>>
+    ===> <<let f = let g = 73 in fun(x) -> add(g, x) in add(f, 1)>>
 
 ### Evaluation of `eval`
 
