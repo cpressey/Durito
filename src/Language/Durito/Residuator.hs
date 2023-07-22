@@ -121,6 +121,9 @@ residuateLit globals env (Fun formals body valueEnv) =
         valueEnv' = extractKnown knownEnv'
     in
         Fun formals body' valueEnv'
+-- FIXME: we can't actually do this for quoted forms currently,
+-- because evaluating a quoted form captures variebles from the
+-- enclosing environment, which isn't known ahead-of-time!!
 residuateLit globals env other = other
 
 --
