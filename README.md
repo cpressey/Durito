@@ -1,7 +1,7 @@
 Durito
 ======
 
-**Durito** is a work-in-progress toy purely-functional language
+**Durito** is a work-in-progress purely-functional toy language
 that implements [Ahead-of-Time `eval`][], which in rough terms
 means that
 
@@ -9,8 +9,8 @@ means that
 *   the language supports quoted forms and `eval`; and
 *   `eval` can be evaluated ahead-of-time too.
 
-The combination of these three features replaces most uses
-of hygienic macros, with some additional benefits.
+The combination of these three features provides a foundation
+for a hygienic macro system, with some additional benefits.
 See the [Ahead-of-Time `eval`][] article for more information.
 
 ### Quick Start
@@ -57,9 +57,9 @@ terminate at runtime.
 
 #### Hygiene
 
-Functions that are evaluated ahead of time are morally equivalent
-to macros.  Or rather, macros are functions _from syntax to syntax_,
-that are evaluated ahead of time.
+Functions that are evaluated ahead of time form the foundation for
+a hygienic macro system.  Macros are, in essence,
+_functions taking syntax to syntax_ that are evaluated ahead of time.
 
 Hygiene is violated when the identifiers in a macro (or in an application
 of a macro) are bound to values that the macro writer (or macro user)
@@ -67,10 +67,7 @@ didn't expect them to be bound to.
 
 Durito's `eval` always evaluates the given quoted program form in
 an environment that contains only builtins and globals (top-level
-identifiers).  _However_, when _creating_ a quoted form in the usual
-way, it _includes_ any local bindings as a `let` block inside the
-quoted form.  So when `eval`ing a quoted form, the local bindings
-are in effect, which is what one usually expects.
+identifiers).  This is to preserve hygiene.
 
 If one wished to _change_ this, however, to subvert the
 base hygiene expectations, to either have those local bindings
@@ -81,6 +78,28 @@ passing it to `eval`.
 To this end, Durito should eventually provide some tools for
 manipulating quoted forms.  It doesn't, at present, because at
 present it is still a proof-of-concept.
+
+One of the tools it presents, which is actually a red herring
+(but I kept it in because it's nitfy), is that when _creating_
+a quoted form in the usual way,
+it _includes_ any local bindings as a `let` block inside the
+quoted form.  So when `eval`ing a quoted form, the local bindings
+are in effect, which is what one usually expects.
+
+But this is actually a red herring (as I said) because the
+local bindings that you actually _want_ in the macro usually aren't
+known until runtime.  There needs to be more than this.
+
+Methodologically, working with values that aren't known until runtime
+is accomplished by reducing the syntax to a function, and passing the
+runtime values in as arguments when calling the function.
+
+To this end, Durito _should_ have (but doesn't yet) some nifty
+sugar to extract values from the quoted form and cast the quoted
+form into a function with those values as arguments.
+
+Exactly the best way to do that, e.g. how to tell Durito which
+values it should do that for, is still an open question.
 
 #### Expressed and Denoted Values
 
