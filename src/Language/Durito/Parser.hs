@@ -48,21 +48,12 @@ expr = (try exprList) <|> (try exprLet) <|> (try exprLiteral) <|> (try exprApply
 
 exprList = do
     keyword "["
-    es <- sepBy (exprMaybePair) (keyword ",")
+    es <- sepBy (expr) (keyword ",")
     keyword "]"
     return $ listToCons es
     where
         listToCons [] = (Name "nil")
         listToCons (e:rest) = Apply (Name "cons") [e, listToCons rest]
-
-exprMaybePair = do
-    e1 <- expr
-    je2 <- option Nothing (do{ keyword "=>"; e <- expr; return $ Just e })
-    case (e1, je2) of
-        (_, Nothing) ->
-            return e1
-        (Name n, Just e2) ->
-            return $ Apply (Name "cons") [Lit $ Quote e1, Apply (Name "cons") [e2, (Name "nil")]]
 
 exprLet = do
     keyword "let"

@@ -59,13 +59,6 @@ doing that presently, thankfully.
     def main = fun() -> cons(cons(<<a>>, <<123>>), nil)
     ===> [[<<a>> | <<123>>]]
 
-A weird bit of sugar where, inside a list,
-a name then a `=>` then an expression desugars into a
-two-element list, with the name quoted.
-
-    def main = fun() -> [a => <<123>>, b => <<456>>]
-    ===> [[<<a>>, <<123>>], [<<b>>, <<456>>]]
-
 ### `let`
 
 There are `let` blocks.
