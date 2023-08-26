@@ -10,22 +10,6 @@ renderBuiltin DuritoMul = "mul"
 renderBuiltin DuritoEval = "eval"
 renderBuiltin DuritoCons = "cons"
 
---
--- Implementation of "subst"
---
-
-substBindings :: [(Name, Value)] -> Expr -> Expr
-substBindings [] expr = expr
-substBindings ((name, value):rest) expr =
-    substBindings rest (substBinding name value expr)
-
-substBinding :: Name -> Value -> Expr -> Expr
-substBinding name value (Apply e1 es) =
-    Apply (substBinding name value e1) (map (substBinding name value) es)
-substBinding name value expr@(Name n) =
-    if name == n then (Lit value) else expr
-substBinding name value other =
-    other
 
 evalBuiltin _ DuritoAdd [(Int x), (Int y)] =
     Int (x + y)
