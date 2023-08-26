@@ -31,7 +31,7 @@ renderValue (Quote e) = "<<" ++ (renderExpr e) ++ ">>"
 renderValue (Int i) = (show i)
 renderValue (Cons h t) = "[" ++ (renderValue h) ++ (renderListTail t)
 renderValue (Nil) = "[]"
-renderValue (Builtin bi) = renderBuiltin bi
+renderValue (Builtin bi) = show bi
 
 renderListTail Nil = "]"
 renderListTail (Cons h t) = ", " ++ (renderValue h) ++ (renderListTail t)

@@ -5,12 +5,6 @@ import qualified Language.Durito.Env as Env
 import Language.Durito.Model
 
 
-renderBuiltin DuritoAdd = "add"
-renderBuiltin DuritoMul = "mul"
-renderBuiltin DuritoEval = "eval"
-renderBuiltin DuritoCons = "cons"
-
-
 evalBuiltin _ DuritoAdd [(Int x), (Int y)] =
     Int (x + y)
 evalBuiltin _ DuritoMul [(Int x), (Int y)] =

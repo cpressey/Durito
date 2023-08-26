@@ -9,4 +9,10 @@ data Builtin = DuritoAdd
              | DuritoMul
              | DuritoEval
              | DuritoCons
-    deriving (Show, Ord, Eq)
+    deriving (Ord, Eq)
+
+instance Show Builtin where
+    show DuritoAdd = "add"
+    show DuritoMul = "mul"
+    show DuritoEval = "eval"
+    show DuritoCons = "cons"
